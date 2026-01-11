@@ -26,8 +26,8 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* display: flex;  <-- REMOVED THIS (It was squishing your layout) */
+  /* place-items: center; <-- REMOVED THIS (It was trapping content) */
   min-width: 320px;
   min-height: 100vh;
 }

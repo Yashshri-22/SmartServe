@@ -1,0 +1,189 @@
+/* Container for the whole page */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+/* The Main Title */
+.main-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+/* Wrapper to hold the two cards side-by-side */
+.cards-wrapper {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap; 
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* --- THE CARD DESIGN --- */
+.role-card {
+  background: white;
+  border-radius: 20px;
+  padding: 45px 35px;
+  width: 420px;
+  
+  /* --- KEY FIX FOR SAME SIZE --- */
+  min-height: 420px; /* Forces both cards to be this tall */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Pushes button to bottom */
+  /* ----------------------------- */
+
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); 
+  border: 1px solid #e2e8f0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: #333;
+}
+
+/* Override height for the form view so it's not too tall */
+.role-card.form-card {
+  min-height: auto; 
+  justify-content: center;
+}
+
+.role-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px rgba(49, 151, 149, 0.15);
+  border-color: #319795;
+}
+
+.card-badge {
+  background-color: #e6fffa;
+  color: #319795;
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 2rem;
+  color: #1a202c;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.card-desc {
+  color: #4a5568;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 35px;
+}
+
+/* --- BUTTONS --- */
+.black-btn {
+  background-color: #319795;
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+
+.black-btn:hover {
+  background-color: #285e61;
+}
+
+.black-btn:disabled {
+  background-color: #cbd5e0;
+  cursor: not-allowed;
+}
+
+/* Links */
+.signup-link {
+  margin-top: 20px;
+  font-size: 0.95rem;
+  color: #718096;
+}
+
+.link-text {
+  color: #319795;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link-text:hover {
+  text-decoration: underline;
+}
+
+/* Input Fields */
+.input-field {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  font-size: 1rem;
+  background-color: #f8fafc;
+  color: #333;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #319795;
+  background-color: white;
+}
+
+.input-error {
+  border-color: #e53e3e !important; /* Red Border */
+  background-color: #fff5f5;
+}
+
+/* Back Button */
+.back-btn {
+  background: none;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.back-btn:hover {
+  color: #319795;
+}
+
+/* --- NEW: INLINE ERROR MESSAGE --- */
+.error-text {
+  color: #e53e3e;
+  font-size: 0.9rem;
+  margin-top: -10px;
+  margin-bottom: 15px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
