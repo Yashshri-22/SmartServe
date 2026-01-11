@@ -1,36 +1,43 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+
+import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
+// Uncomment these when dashboards are ready
 // import VolunteerDashboard from "./pages/VolunteerDashboard";
 // import NgoDashboard from "./pages/NgoDashboard";
 
 function App() {
   const { session, loading } = useAuth();
 
-  if (loading) return <div className="p-4">Loading...</div>;
-
-  if (!session) {
-    return <Auth />;
+  if (loading) {
+    return <div className="p-4">Loading...</div>;
   }
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/redirect" />} />
-        <Route path="/volunteer" element={<VolunteerDashboard />} />
-        <Route path="/ngo" element={<NgoDashboard />} />
-        <Route path="/redirect" element={<RoleRedirect />} />
+        {/* PUBLIC ROUTES */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/auth" element={<Auth />} />
+
+        {/* PROTECTED ROUTES (enable later) */}
+        {/* 
+        <Route
+          path="/volunteer"
+          element={session ? <VolunteerDashboard /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/ngo"
+          element={session ? <NgoDashboard /> : <Navigate to="/auth" />}
+        />
+        */}
+
+        {/* FALLBACK */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
-}
-
-function RoleRedirect() {
-  const { session } = useAuth();
-
-  // TEMP: until we fetch role properly
-  // You will improve this later
-  return <Navigate to="/volunteer" />;
 }
 
 export default App;
