@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { supabase } from '../services/supabaseClient'
+import { useNavigate } from 'react-router-dom' // <--- 1. Import this
 import './Auth.css'
 
 export default function Auth() {
+  const navigate = useNavigate() // <--- 2. Initialize hook
   const [view, setView] = useState('selection')
   const [role, setRole] = useState('') 
   const [isLogin, setIsLogin] = useState(true) 
@@ -10,8 +12,6 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
-  // Messages
   const [errorMsg, setErrorMsg] = useState('')
 
   const handleCardClick = (selectedRole, mode) => {
@@ -28,7 +28,7 @@ export default function Auth() {
     setLoading(true)
     setErrorMsg('')
 
-    // 1. Password Length Check (Client Side)
+    // Password Length Check
     if (!isLogin && password.length < 6) {
       setErrorMsg('Password must be at least 6 characters')
       setLoading(false)
@@ -36,19 +36,25 @@ export default function Auth() {
     }
 
     try {
+      let userRole = role; // Default to selected role
+
       if (isLogin) {
         // --- LOGIN ---
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
         
-        // Alert for Login Success
-        alert("Login Successful!")
-        // App.jsx will automatically detect the session and redirect you
-      } 
-      else {
+        // Fetch role from profile to ensure correct redirection
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile) userRole = profile.role;
+
+      } else {
         // --- REGISTER ---
         const { data, error } = await supabase.auth.signUp({ email, password })
-        
         if (error) throw error
 
         if (data.user) {
@@ -56,21 +62,19 @@ export default function Auth() {
             .from('profiles')
             .insert([{ id: data.user.id, email: email, role: role }])
           
-          if (profileError) {
-             console.error('Profile error:', profileError)
-             setErrorMsg('Account created but profile failed.')
-          } else {
-             // Alert for Registration Success
-             alert("Registration Successful! Please check your email.")
-             // If 'Confirm Email' is disabled in Supabase, you will be auto-logged in now.
-          }
+          if (profileError) throw profileError
         }
       }
+
+      // --- REDIRECT BASED ON ROLE ---
+      if (userRole === 'ngo') {
+        navigate('/ngo')
+      } else {
+        navigate('/volunteer') // Assuming you will build this later
+      }
+
     } catch (error) {
-      // 2. Catch Errors
-      if (error.message.includes('already registered') || error.message.includes('unique constraint')) {
-        setErrorMsg('The user already exists. Try logging in.')
-      } else if (error.message.includes('Invalid login')) {
+      if (error.message.includes('Invalid login')) {
          setErrorMsg('Invalid email or password.')
       } else {
         setErrorMsg(error.message)
@@ -133,7 +137,7 @@ export default function Auth() {
   // --- VIEW 2: FORM ---
   return (
     <div className="auth-container">
-      <div className="role-card form-card"> {/* Added 'form-card' class for specific sizing */}
+      <div className="role-card form-card">
         <button className="back-btn" onClick={() => setView('selection')}>
            ← Back
         </button>
@@ -143,8 +147,6 @@ export default function Auth() {
         </h2>
         
         <form onSubmit={handleAuth} style={{textAlign: 'left', width: '100%'}}>
-          
-          {/* EMAIL INPUT */}
           <input
             type="email"
             placeholder="name@work-email.com"
@@ -153,8 +155,6 @@ export default function Auth() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-
-          {/* PASSWORD INPUT */}
           <input
             type="password"
             placeholder="Password"
@@ -163,14 +163,11 @@ export default function Auth() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-
-          {/* INLINE ERROR MESSAGE */}
           {errorMsg && (
             <div className="error-text">
               <span>⚠️</span> {errorMsg}
             </div>
           )}
-
           <button type="submit" className="black-btn" disabled={loading}>
             {loading ? 'Processing...' : (isLogin ? 'Log In' : 'Sign Up')}
           </button>
