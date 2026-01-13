@@ -3,12 +3,9 @@ import { useAuth } from "./context/AuthContext";
 
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
-import About from "./pages/About";          // <--- Import About
-import Predictor from "./pages/Predictor";  // <--- Import Predictor
-
-// Uncomment these when dashboards are ready
-// import VolunteerDashboard from "./pages/VolunteerDashboard";
-// import NgoDashboard from "./pages/NgoDashboard";
+import About from "./pages/About";
+import Predictor from "./pages/Predictor";
+import NgoDashboard from "./pages/NgoDashboard"; // <--- Import this
 
 function App() {
   const { session, loading } = useAuth();
@@ -23,21 +20,14 @@ function App() {
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
-        
-        {/* --- NEW ROUTES --- */}
         <Route path="/about" element={<About />} />
         <Route path="/predictor" element={<Predictor />} />
 
-        {/* PROTECTED ROUTES (enable later) */}
-        {/* <Route
-          path="/volunteer"
-          element={session ? <VolunteerDashboard /> : <Navigate to="/auth" />}
-        />
+        {/* PROTECTED NGO ROUTE */}
         <Route
           path="/ngo"
-          element={session ? <NgoDashboard /> : <Navigate to="/auth" />}
+          element={session ? <NgoDashboard /> : <Navigate to="/auth" />} 
         />
-        */}
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />
