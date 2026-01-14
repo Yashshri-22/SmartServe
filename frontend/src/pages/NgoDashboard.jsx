@@ -10,7 +10,7 @@ import {
 
 // --- AI LOGIC HELPERS ---
 
-// 1. Detect Skills (Improved: Checks specific keywords individually)
+// 1. Detect Skills
 const getDetectedSkills = (text) => {
     const lowerText = text.toLowerCase();
     let skills = [];
@@ -38,33 +38,32 @@ const getDetectedSkills = (text) => {
     return skills;
 };
 
-// 2. Extract Duration & Role (Improved: Captures numbers)
+// 2. Extract Duration & Role
 const extractMetadata = (text) => {
     const lower = text.toLowerCase();
     let duration = "Flexible";
     let role = "Volunteer";
 
-    // --- DURATION DETECTION (Regex to catch "2 months", "3 days", etc.) ---
+    // --- DURATION DETECTION ---
     const timePatterns = [
-        /(\d+)\s*months?/,  // Matches "2 months", "1 month"
-        /(\d+)\s*weeks?/,   // Matches "3 weeks"
-        /(\d+)\s*days?/,    // Matches "2 days"
-        /(\d+)\s*hours?/    // Matches "4 hours"
+        /(\d+)\s*months?/,  
+        /(\d+)\s*weeks?/,   
+        /(\d+)\s*days?/,    
+        /(\d+)\s*hours?/    
     ];
 
     for (const pattern of timePatterns) {
         const match = lower.match(pattern);
         if (match) {
-            duration = match[0]; // Returns "2 months" instead of just "month"
-            break; // Stop after first match found
+            duration = match[0]; 
+            break; 
         }
     }
 
-    // Fallback for keywords without numbers
     if (duration === "Flexible") {
         if (lower.includes("weekend")) duration = "Weekend";
         else if (lower.includes("today")) duration = "Today";
-        else if (lower.includes("month")) duration = "1 Month"; // Default only if no number found
+        else if (lower.includes("month")) duration = "1 Month"; 
     }
 
     // --- ROLE DETECTION ---
@@ -124,16 +123,16 @@ export default function NgoDashboard() {
     try {
       if (session?.user) {
         const skills = getDetectedSkills(description);
-        const { duration } = extractMetadata(description); // Auto-extract duration
+        const { duration } = extractMetadata(description); 
         
         const { error } = await supabase.from('ngos').insert([{ 
             user_id: session.user.id,
-            org_name: orgName,        // Saved
-            contact_info: contact,    // Saved
-            ai_needs: skills,         // Auto-extracted
+            org_name: orgName,        
+            contact_info: contact,    
+            ai_needs: skills,         
             raw_requirement: description, 
             location: location,
-            duration: duration        // Auto-extracted
+            duration: duration        
         }]);
 
         if (error) throw error;
@@ -160,7 +159,6 @@ export default function NgoDashboard() {
       try {
         const detectedSkills = getDetectedSkills(description);
 
-        // Fetch volunteers in location
         const { data: volunteers, error } = await supabase
           .from('volunteers')
           .select('*')
@@ -168,7 +166,6 @@ export default function NgoDashboard() {
 
         if (error) throw error;
 
-        // Score matches based on skill overlap
         const matches = volunteers.map(vol => {
           let volSkills = vol.ai_skills || [];
           if (typeof volSkills === 'string') volSkills = JSON.parse(volSkills);
@@ -197,9 +194,9 @@ export default function NgoDashboard() {
       }
   };
 
-  // --- DELETE FUNCTIONALITY (NEW) ---
+  // --- DELETE FUNCTIONALITY ---
   const handleDelete = async (e, postId) => {
-    e.stopPropagation(); // Prevents the card click (loadFromHistory) from triggering
+    e.stopPropagation(); 
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 
     try {
@@ -213,7 +210,6 @@ export default function NgoDashboard() {
         // Update local UI immediately
         setMyPosts(myPosts.filter(post => post.id !== postId));
         
-        // If the deleted post was currently being viewed, reset the form
         if (selectedPostId === postId) {
             resetForm();
         }
@@ -245,7 +241,6 @@ export default function NgoDashboard() {
     <div className="bg-gray-50 min-h-screen text-gray-900 font-sans selection:bg-teal-100 relative overflow-x-hidden">
       <Navbar />
 
-      {/* Background Image */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] -z-10 opacity-10 pointer-events-none">
         <img 
             src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
@@ -257,7 +252,6 @@ export default function NgoDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-20 relative z-10">
         
-        {/* Header */}
         <div className="mb-10 text-center mx-auto max-w-3xl">
            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
              NGO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#319795] to-teal-500">Dashboard</span>
@@ -269,13 +263,11 @@ export default function NgoDashboard() {
 
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           
-          {/* ================= LEFT COLUMN ================= */}
           <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-28">
             
             {/* 1. INPUT CARD */}
             <div className={`bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-xl border relative overflow-hidden transition-all duration-300 ${selectedPostId ? 'border-teal-400 ring-4 ring-teal-50' : 'border-white/50 ring-1 ring-gray-200/50'}`}>
               
-              {/* Context Banner */}
               {selectedPostId ? (
                 <div className="bg-teal-50 text-teal-700 px-4 py-2 -mt-6 -mx-6 mb-4 flex justify-between items-center border-b border-teal-100">
                   <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
@@ -298,7 +290,6 @@ export default function NgoDashboard() {
 
               <form onSubmit={handleFindMatch} className="relative z-10 space-y-4">
                 
-                {/* 1. Organization Name */}
                 <div>
                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Organization Name</label>
                    <div className="flex items-center w-full bg-gray-50 border border-gray-200 rounded-xl focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10 overflow-hidden">
@@ -313,9 +304,6 @@ export default function NgoDashboard() {
                    </div>
                 </div>
 
-                {/* NOTE: Title input removed. Title is inferred from Description */}
-
-                {/* 2. Description */}
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Describe your Need</label>
                   <textarea
@@ -327,7 +315,6 @@ export default function NgoDashboard() {
                   ></textarea>
                 </div>
 
-                {/* 3. Location & Contact Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Location</label>
@@ -358,7 +345,6 @@ export default function NgoDashboard() {
                     </div>
                 </div>
 
-                {/* --- SEPARATE BUTTONS --- */}
                 <div className="flex flex-col gap-3 pt-2">
                     <button
                         type="submit" 
@@ -404,17 +390,16 @@ export default function NgoDashboard() {
                         : "bg-gray-50 border-transparent hover:border-teal-200 hover:bg-teal-50/50"
                       }`}
                     >
-                      {/* DELETE BUTTON (New) */}
+                      {/* DELETE BUTTON */}
                       <button
                         onClick={(e) => handleDelete(e, post.id)}
-                        className="absolute top-3 right-3 text-gray-500 hover:text-red-500 p-1 rounded-full hover:bg-red-50 transition-all opacity-5 group-hover:opacity-100 z-20"
+                        className="absolute top-3 right-3 text-gray-500 hover:text-red-600 p-1 rounded-full hover:bg-red-50 transition-all z-20"
                         title="Delete Post"
                       >
                         <FaTrash className="text-xs" />
                       </button>
 
                       <div className="flex flex-wrap justify-between items-center mb-1 gap-2 pr-6">
-                        {/* Org Name acts as Title since we don't save Title */}
                         <span className="text-[11px] font-bold text-gray-800 truncate max-w-[150px]">
                             {post.org_name || "Organization"}
                         </span>
@@ -426,7 +411,6 @@ export default function NgoDashboard() {
                          <span className="text-[10px] font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-lg whitespace-nowrap">
                           {post.location}
                         </span>
-                         {/* Display Auto-Extracted Duration if available */}
                          {post.duration && post.duration !== "Flexible" && (
                             <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-lg whitespace-nowrap">
                                 {post.duration}
@@ -443,10 +427,8 @@ export default function NgoDashboard() {
             </div>
           </div>
 
-          {/* ================= RIGHT COLUMN (RESULTS) ================= */}
           <div className="lg:col-span-7 pb-10">
             
-            {/* 1. EMPTY STATE */}
             {!aiResult && !loading && (
               <div className="flex flex-col items-center justify-center text-center p-10 bg-white/60 backdrop-blur-sm rounded-[2rem] border-2 border-dashed border-gray-200 min-h-[400px]">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-300">
@@ -459,7 +441,6 @@ export default function NgoDashboard() {
               </div>
             )}
 
-            {/* 2. LOADING STATE */}
             {loading && (
               <div className="flex flex-col items-center justify-center p-16 min-h-[400px] bg-white rounded-[2rem] shadow-xl border border-gray-100">
                 <div className="relative mb-6">
@@ -471,11 +452,10 @@ export default function NgoDashboard() {
               </div>
             )}
 
-            {/* 3. RESULTS DISPLAY */}
+            {/* RESULTS DISPLAY */}
             {aiResult && (
               <div className="animate-fade-in-up space-y-6">
                 
-                {/* AI Skills Summary Box */}
                 <div className="bg-gradient-to-br from-teal-50 via-white to-teal-50/30 border border-teal-100 p-6 rounded-[2rem] shadow-sm">
                   <h3 className="text-teal-800 font-bold text-xs uppercase mb-4 flex items-center gap-2 tracking-widest">
                     <FaRobot className="text-lg" /> AI Detected Skills
@@ -489,7 +469,6 @@ export default function NgoDashboard() {
                   </div>
                 </div>
 
-                {/* Results Header */}
                 <div className="flex items-center justify-between px-2">
                   <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
                     Matches Found 
@@ -498,7 +477,6 @@ export default function NgoDashboard() {
                   <span className="text-xs font-bold text-teal-600 uppercase tracking-wider">Top Matches</span>
                 </div>
 
-                {/* Volunteer Cards List - SMALLER & COMPACT */}
                 <div className="grid gap-4">
                   {aiResult.matches.length > 0 ? (
                     aiResult.matches.map((vol) => (
@@ -506,11 +484,13 @@ export default function NgoDashboard() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                           <div className="flex items-start gap-4">
                             <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 text-lg font-black uppercase group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors shrink-0">
-                              {vol.name ? vol.name.charAt(0) : <FaUser />}
+                              {/* --- UPDATED: Use vol.full_name --- */}
+                              {vol.full_name ? vol.full_name.charAt(0) : <FaUser />}
                             </div>
                             <div>
                               <h4 className="font-bold text-lg text-gray-900 group-hover:text-[#319795] transition-colors">
-                                {vol.name || "Volunteer"}
+                                {/* --- UPDATED: Use vol.full_name --- */}
+                                {vol.full_name || "Volunteer"}
                               </h4>
                               <p className="text-xs text-gray-500 flex items-center gap-1.5 mt-1 font-medium">
                                   <FaMapMarkerAlt className="text-teal-500" /> {vol.location} 
