@@ -4,31 +4,85 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import { 
   FaRobot, FaMapMarkerAlt, FaStar, 
-  FaUser, FaHistory, FaSearch, FaPlus, FaSave
+  FaUser, FaHistory, FaSearch, FaPlus, FaSave,
+  FaBuilding, FaPhone, FaTrash
 } from "react-icons/fa";
 
-// Helper function for Mock AI (reused by both actions)
+// --- AI LOGIC HELPERS ---
+
+// 1. Detect Skills (Improved: Checks specific keywords individually)
 const getDetectedSkills = (text) => {
     const lowerText = text.toLowerCase();
     let skills = [];
-    if (lowerText.includes("teach") || lowerText.includes("math") || lowerText.includes("school")) {
-      skills = ["Teaching", "Math", "Science", "Childcare"];
-    } else if (lowerText.includes("photo") || lowerText.includes("camera") || lowerText.includes("video")) {
-      skills = ["Photography", "Video Editing", "Media"];
-    } else if (lowerText.includes("code") || lowerText.includes("web") || lowerText.includes("app")) {
-      skills = ["Web Development", "React", "Tech"];
-    } else if (lowerText.includes("food") || lowerText.includes("drive") || lowerText.includes("help")) {
-      skills = ["Logistics", "Driving", "General Help"];
-    } else {
-      skills = ["General Volunteering"];
-    }
+
+    // Teaching & Education
+    if (lowerText.includes("teach") || lowerText.includes("tutor")) skills.push("Teaching");
+    if (lowerText.includes("math")) skills.push("Math");
+    if (lowerText.includes("science")) skills.push("Science");
+    if (lowerText.includes("kid") || lowerText.includes("child")) skills.push("Childcare");
+
+    // Tech & Media
+    if (lowerText.includes("photo") || lowerText.includes("camera")) skills.push("Photography");
+    if (lowerText.includes("video") || lowerText.includes("edit")) skills.push("Video Editing");
+    if (lowerText.includes("web") || lowerText.includes("site")) skills.push("Web Development");
+    if (lowerText.includes("app") || lowerText.includes("code")) skills.push("App Development");
+
+    // Logistics & Help
+    if (lowerText.includes("drive") || lowerText.includes("car")) skills.push("Driving");
+    if (lowerText.includes("food") || lowerText.includes("cook")) skills.push("Cooking");
+    if (lowerText.includes("event") || lowerText.includes("manage")) skills.push("Event Management");
+
+    // Default if nothing found
+    if (skills.length === 0) skills.push("General Volunteering");
+
     return skills;
+};
+
+// 2. Extract Duration & Role (Improved: Captures numbers)
+const extractMetadata = (text) => {
+    const lower = text.toLowerCase();
+    let duration = "Flexible";
+    let role = "Volunteer";
+
+    // --- DURATION DETECTION (Regex to catch "2 months", "3 days", etc.) ---
+    const timePatterns = [
+        /(\d+)\s*months?/,  // Matches "2 months", "1 month"
+        /(\d+)\s*weeks?/,   // Matches "3 weeks"
+        /(\d+)\s*days?/,    // Matches "2 days"
+        /(\d+)\s*hours?/    // Matches "4 hours"
+    ];
+
+    for (const pattern of timePatterns) {
+        const match = lower.match(pattern);
+        if (match) {
+            duration = match[0]; // Returns "2 months" instead of just "month"
+            break; // Stop after first match found
+        }
+    }
+
+    // Fallback for keywords without numbers
+    if (duration === "Flexible") {
+        if (lower.includes("weekend")) duration = "Weekend";
+        else if (lower.includes("today")) duration = "Today";
+        else if (lower.includes("month")) duration = "1 Month"; // Default only if no number found
+    }
+
+    // --- ROLE DETECTION ---
+    if (lower.includes("teach") || lower.includes("tutor")) role = "Teacher";
+    else if (lower.includes("drive")) role = "Driver";
+    else if (lower.includes("photo")) role = "Photographer";
+    else if (lower.includes("web") || lower.includes("code")) role = "Developer";
+    else if (lower.includes("cook")) role = "Cook";
+
+    return { duration, role };
 };
 
 export default function NgoDashboard() {
   const { session } = useAuth();
   
   // Input State
+  const [orgName, setOrgName] = useState("");
+  const [contact, setContact] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [selectedPostId, setSelectedPostId] = useState(null);
@@ -62,20 +116,29 @@ export default function NgoDashboard() {
 
   // --- ACTION 1: ONLY POST (Save to DB) ---
   const handlePost = async () => {
-    if (!description || !location) return alert("Please fill all fields.");
+    if (!description || !location || !orgName || !contact) {
+        return alert("Please fill all fields to post a requirement.");
+    }
+    
     setLoading(true);
     try {
       if (session?.user) {
         const skills = getDetectedSkills(description);
+        const { duration } = extractMetadata(description); // Auto-extract duration
+        
         const { error } = await supabase.from('ngos').insert([{ 
             user_id: session.user.id,
-            ai_needs: skills,
+            org_name: orgName,        // Saved
+            contact_info: contact,    // Saved
+            ai_needs: skills,         // Auto-extracted
             raw_requirement: description, 
             location: location,
-            duration: "Flexible"
+            duration: duration        // Auto-extracted
         }]);
+
         if (error) throw error;
-        fetchMyPosts(); // Refresh history
+        
+        fetchMyPosts(); 
         alert("Requirement Posted Successfully!");
         resetForm();
       }
@@ -88,8 +151,9 @@ export default function NgoDashboard() {
 
   // --- ACTION 2: ONLY FIND MATCH (Query DB) ---
   const handleFindMatch = async (e) => {
-      e.preventDefault(); // Prevent form submisson trigger
-      if (!description || !location) return alert("Please fill all fields.");
+      e.preventDefault(); 
+      if (!description || !location) return alert("Please provide Description and Location.");
+      
       setLoading(true);
       setAiResult(null);
 
@@ -133,9 +197,35 @@ export default function NgoDashboard() {
       }
   };
 
+  // --- DELETE FUNCTIONALITY (NEW) ---
+  const handleDelete = async (e, postId) => {
+    e.stopPropagation(); // Prevents the card click (loadFromHistory) from triggering
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+        const { error } = await supabase
+            .from('ngos')
+            .delete()
+            .eq('id', postId);
+        
+        if (error) throw error;
+
+        // Update local UI immediately
+        setMyPosts(myPosts.filter(post => post.id !== postId));
+        
+        // If the deleted post was currently being viewed, reset the form
+        if (selectedPostId === postId) {
+            resetForm();
+        }
+    } catch (error) {
+        alert("Error deleting post: " + error.message);
+    }
+  };
 
   const loadFromHistory = (post) => {
     setSelectedPostId(post.id);
+    setOrgName(post.org_name || "");
+    setContact(post.contact_info || "");
     setDescription(post.raw_requirement);
     setLocation(post.location);
     setAiResult(null);
@@ -144,6 +234,8 @@ export default function NgoDashboard() {
 
   const resetForm = () => {
     setSelectedPostId(null);
+    setOrgName("");
+    setContact("");
     setDescription("");
     setLocation("");
     setAiResult(null);
@@ -204,53 +296,78 @@ export default function NgoDashboard() {
                 <span>AI Requirement Scanner</span>
               </h2>
 
-              <form onSubmit={handleFindMatch} className="relative z-10">
-                <div className="mb-4">
+              <form onSubmit={handleFindMatch} className="relative z-10 space-y-4">
+                
+                {/* 1. Organization Name */}
+                <div>
+                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Organization Name</label>
+                   <div className="flex items-center w-full bg-gray-50 border border-gray-200 rounded-xl focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10 overflow-hidden">
+                      <div className="pl-4 pr-2 text-teal-500 text-lg shrink-0"><FaBuilding /></div>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Hope Foundation" 
+                        className="w-full py-3 pr-4 bg-transparent border-none outline-none text-sm text-gray-700 font-medium"
+                        value={orgName}
+                        onChange={(e) => setOrgName(e.target.value)}
+                      />
+                   </div>
+                </div>
+
+                {/* NOTE: Title input removed. Title is inferred from Description */}
+
+                {/* 2. Description */}
+                <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Describe your Need</label>
                   <textarea
                     placeholder="e.g. We need a math teacher for 10 kids this weekend..."
-                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:border-[#319795] focus:ring-2 focus:ring-teal-500/10 outline-none h-32 resize-none text-sm text-gray-700 placeholder:text-gray-400 font-medium transition-all"
+                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#319795] focus:ring-2 focus:ring-teal-500/10 outline-none h-28 resize-none text-sm text-gray-700 placeholder:text-gray-400 font-medium transition-all"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     required
                   ></textarea>
                 </div>
 
-                <div className="mb-6">
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Location</label>
-                  
-                  {/* FLEX CONTAINER: Acts as the border. Icon and Input sit side-by-side. */}
-                  <div className="flex items-center w-full bg-gray-50 border border-gray-200 rounded-2xl focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10 transition-all overflow-hidden">
-                    
-                    {/* ICON: Fixed width, never overlaps */}
-                    <div className="pl-4 pr-2 text-teal-500 text-lg shrink-0">
-                      <FaMapMarkerAlt />
+                {/* 3. Location & Contact Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Location</label>
+                        <div className="flex items-center w-full bg-gray-50 border border-gray-200 rounded-xl focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10 overflow-hidden">
+                            <div className="pl-4 pr-2 text-teal-500 text-lg shrink-0"><FaMapMarkerAlt /></div>
+                            <input
+                            type="text"
+                            placeholder="e.g. Pune"
+                            className="w-full py-3 pr-4 bg-transparent border-none outline-none text-sm text-gray-700 font-medium"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            required
+                            />
+                        </div>
                     </div>
-
-                    {/* INPUT: Background transparent, no border (parent has the border) */}
-                    <input
-                      type="text"
-                      placeholder="e.g. Pune"
-                      className="w-full py-3 pr-4 bg-transparent border-none outline-none text-sm text-gray-700 font-medium placeholder:text-gray-400"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      required
-                    />
-                  </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Contact No.</label>
+                        <div className="flex items-center w-full bg-gray-50 border border-gray-200 rounded-xl focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10 overflow-hidden">
+                            <div className="pl-4 pr-2 text-teal-500 text-lg shrink-0"><FaPhone /></div>
+                            <input
+                            type="text"
+                            placeholder="e.g. 9876543210"
+                            className="w-full py-3 pr-4 bg-transparent border-none outline-none text-sm text-gray-700 font-medium"
+                            value={contact}
+                            onChange={(e) => setContact(e.target.value)}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 {/* --- SEPARATE BUTTONS --- */}
-                <div className="flex flex-col gap-3">
-                    {/* Button 1: Find Match (Secondary Action - Dark Gray) */}
+                <div className="flex flex-col gap-3 pt-2">
                     <button
                         type="submit" 
                         disabled={loading}
-                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:shadow-teal-500/30 hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                         {loading ? "Processing..." : <><FaSearch /> Find Match</>}
                     </button>
 
-                    {/* Button 2: Post Requirement (Primary Action - Teal Theme) */}
                     {!selectedPostId && ( 
                         <button
                         type="button" 
@@ -281,21 +398,42 @@ export default function NgoDashboard() {
                     <div 
                       key={post.id} 
                       onClick={() => loadFromHistory(post)}
-                      className={`group p-3 rounded-xl border cursor-pointer transition-all duration-200 w-full ${
+                      className={`group p-3 rounded-xl border cursor-pointer transition-all duration-200 w-full relative ${
                         selectedPostId === post.id 
                         ? "bg-teal-50 border-teal-300 ring-1 ring-teal-300" 
                         : "bg-gray-50 border-transparent hover:border-teal-200 hover:bg-teal-50/50"
                       }`}
                     >
-                      <div className="flex flex-wrap justify-between items-center mb-2 gap-2">
-                        <span className="text-[10px] font-bold text-teal-700 uppercase tracking-wider bg-teal-100 px-2 py-0.5 rounded-lg whitespace-nowrap">
-                          {post.location}
+                      {/* DELETE BUTTON (New) */}
+                      <button
+                        onClick={(e) => handleDelete(e, post.id)}
+                        className="absolute top-3 right-3 text-gray-500 hover:text-red-500 p-1 rounded-full hover:bg-red-50 transition-all opacity-5 group-hover:opacity-100 z-20"
+                        title="Delete Post"
+                      >
+                        <FaTrash className="text-xs" />
+                      </button>
+
+                      <div className="flex flex-wrap justify-between items-center mb-1 gap-2 pr-6">
+                        {/* Org Name acts as Title since we don't save Title */}
+                        <span className="text-[11px] font-bold text-gray-800 truncate max-w-[150px]">
+                            {post.org_name || "Organization"}
                         </span>
                         <span className="text-[10px] text-gray-400 whitespace-nowrap">
                            {new Date(post.created_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className={`text-xs line-clamp-2 font-medium ${selectedPostId === post.id ? "text-teal-800" : "text-gray-600"}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                         <span className="text-[10px] font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-lg whitespace-nowrap">
+                          {post.location}
+                        </span>
+                         {/* Display Auto-Extracted Duration if available */}
+                         {post.duration && post.duration !== "Flexible" && (
+                            <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-lg whitespace-nowrap">
+                                {post.duration}
+                            </span>
+                         )}
+                      </div>
+                      <p className={`text-xs line-clamp-1 font-medium ${selectedPostId === post.id ? "text-teal-800" : "text-gray-600"}`}>
                         {post.raw_requirement}
                       </p>
                     </div>
@@ -364,7 +502,6 @@ export default function NgoDashboard() {
                 <div className="grid gap-4">
                   {aiResult.matches.length > 0 ? (
                     aiResult.matches.map((vol) => (
-                      // Reduced padding (p-5) and border radius (rounded-2xl)
                       <div key={vol.id} className="bg-white p-5 rounded-2xl shadow-sm border border-transparent hover:border-teal-300 hover:shadow-lg transition-all duration-300 group">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                           <div className="flex items-start gap-4">
@@ -397,7 +534,6 @@ export default function NgoDashboard() {
                               </div>
                             </div>
                             
-                            {/* SOLID BLACK BUTTON */}
                             <button className="w-full sm:w-auto px-6 py-2 bg-black text-white text-xs font-bold rounded-xl hover:opacity-80 transition-all shadow-md">
                               Contact
                             </button>
