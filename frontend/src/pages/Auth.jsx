@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { supabase } from '../services/supabaseClient'
-import { useNavigate } from 'react-router-dom' // <--- 1. Import this
+import { useNavigate } from 'react-router-dom'
 import './Auth.css'
 
 export default function Auth() {
-  const navigate = useNavigate() // <--- 2. Initialize hook
+  const navigate = useNavigate()
   const [view, setView] = useState('selection')
-  const [role, setRole] = useState('') 
-  const [isLogin, setIsLogin] = useState(true) 
-  
+  const [role, setRole] = useState('')
+  const [isLogin, setIsLogin] = useState(true)
+ 
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -36,32 +36,40 @@ export default function Auth() {
     }
 
     try {
-      let userRole = role; // Default to selected role
+      let userRole = role; // Default to selected role (important for Sign Up)
 
       if (isLogin) {
         // --- LOGIN ---
         const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
-        
+       
         // Fetch role from profile to ensure correct redirection
+        // (User might select "NGO" on UI but actually be a "Volunteer" in DB)
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single()
-        
+       
         if (profile) userRole = profile.role;
 
       } else {
         // --- REGISTER ---
-        const { data, error } = await supabase.auth.signUp({ email, password })
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { role: role } // Optional: Save role in metadata as backup
+            }
+        })
         if (error) throw error
 
         if (data.user) {
+          // Create Profile entry with the selected role
           const { error: profileError } = await supabase
             .from('profiles')
             .insert([{ id: data.user.id, email: email, role: role }])
-          
+         
           if (profileError) throw profileError
         }
       }
@@ -70,7 +78,7 @@ export default function Auth() {
       if (userRole === 'ngo') {
         navigate('/ngo')
       } else {
-        navigate('/volunteer') // Assuming you will build this later
+        navigate('/volunteer')
       }
 
     } catch (error) {
@@ -96,7 +104,7 @@ export default function Auth() {
               <span className="card-badge">Organization</span>
               <h2 className="card-title">For NGOs</h2>
               <p className="card-desc">
-                Connect with thousands of volunteers. Post events, manage drives, 
+                Connect with thousands of volunteers. Post events, manage drives,
                 and make a bigger impact.
               </p>
             </div>
@@ -116,7 +124,7 @@ export default function Auth() {
               <span className="card-badge">Community</span>
               <h2 className="card-title">For Volunteers</h2>
               <p className="card-desc">
-                Find meaningful opportunities. Upskill yourself, earn certificates, 
+                Find meaningful opportunities. Upskill yourself, earn certificates,
                 and contribute to causes.
               </p>
             </div>
@@ -141,16 +149,16 @@ export default function Auth() {
         <button className="back-btn" onClick={() => setView('selection')}>
            ← Back
         </button>
-        
+       
         <h2 className="card-title">
           {isLogin ? 'Welcome Back' : 'Create Account'}
         </h2>
-        
+       
         <form onSubmit={handleAuth} style={{textAlign: 'left', width: '100%'}}>
           <input
             type="email"
             placeholder="name@work-email.com"
-            className={`input-field ${errorMsg ? 'input-error' : ''}`} 
+            className={`input-field ${errorMsg ? 'input-error' : ''}`}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
