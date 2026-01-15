@@ -39,14 +39,14 @@ export default function Navbar() {
       <div className="hidden items-center gap-8 md:flex">
         <button
           onClick={handleHomeClick}
-          className="!border-1 ! !rounded-full !border-[#319795] text-sm font-medium text-gray-600 transition-colors hover:text-[#319795]"
+          className="!border-1 ! !rounded-full !border-[#319795] bg-white text-sm font-medium text-gray-600 transition-colors hover:text-[#319795]"
         >
           Home
         </button>
 
         <button
           onClick={() => navigate("/about")}
-          className="!border-1 ! !rounded-full !border-[#319795] text-sm font-medium text-gray-600 transition-colors hover:text-[#319795]"
+          className="!border-1 !rounded-full !border-[#319795] bg-white text-sm font-medium text-gray-600 transition-colors hover:text-[#319795]"
         >
           About Us
         </button>
@@ -54,7 +54,7 @@ export default function Navbar() {
         {/* --- UNIQUE FEATURE: IMPACT PREDICTOR --- */}
         <button
           onClick={() => navigate("/predictor")}
-          className="!border-1 ! group flex items-center gap-2 !rounded-full !border-[#319795] text-sm font-bold text-gray-600 transition-colors hover:text-[#319795]"
+          className="!border-1 group flex items-center gap-2 !rounded-full !border-[#319795] bg-white text-sm font-bold text-gray-600 transition-colors hover:text-[#319795]"
         >
           <FaBrain className="text-[#319795] transition-transform group-hover:scale-110" />
           Impact Predictor
