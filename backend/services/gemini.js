@@ -1,11 +1,9 @@
-// services/gemini.js
 const axios = require("axios");
 
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 function cleanGeminiResponse(text) {
-  // Remove ```json and ```
   return text
     .replace(/```json/g, "")
     .replace(/```/g, "")

@@ -5,7 +5,6 @@ function calculateMatchScore(volunteer, ngo) {
   const vSkills = volunteer.ai_skills || [];
   const nNeeds = ngo.ai_needs || [];
 
-  // 🔹 Skill match (60%)
   const commonSkills = vSkills.filter(skill =>
     nNeeds.includes(skill)
   );
@@ -17,13 +16,11 @@ function calculateMatchScore(volunteer, ngo) {
     );
   }
 
-  // 🔹 Availability / duration (20%)
   if (volunteer.availability && ngo.duration) {
     score += 20;
     reasons.push("Availability aligns with project duration");
   }
 
-  // 🔹 Location match (20%)
   if (
     volunteer.location &&
     ngo.location &&

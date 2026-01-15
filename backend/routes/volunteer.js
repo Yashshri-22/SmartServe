@@ -1,4 +1,3 @@
-// routes/volunteer.js
 const router = require("express").Router();
 const supabase = require("../services/supabase");
 const analyzeText = require("../services/gemini");

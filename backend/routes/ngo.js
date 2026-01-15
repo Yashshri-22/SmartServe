@@ -1,4 +1,3 @@
-// routes/ngo.js
 const express = require("express");
 const router = express.Router();
 
@@ -14,13 +13,11 @@ router.post("/create", async (req, res) => {
       location
     } = req.body;
 
-    // 1️⃣ Ask Gemini to extract required skills
     const ai_needs = await analyzeText(
       raw_requirement,
       "needs"
     );
 
-    // 2️⃣ Insert NGO record
     const { data, error } = await supabase
       .from("ngos")
       .insert([
@@ -32,7 +29,7 @@ router.post("/create", async (req, res) => {
           location
         }
       ])
-      .select(); // return inserted row
+      .select(); 
 
     if (error) throw error;
 

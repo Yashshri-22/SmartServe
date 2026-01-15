@@ -1,4 +1,3 @@
-// routes/match.js
 const express = require("express");
 const router = express.Router();
 
@@ -15,7 +14,6 @@ router.post("/generate", async (req, res) => {
       });
     }
 
-    // Fetch volunteer
     const { data: volunteer, error: vErr } = await supabase
       .from("volunteers")
       .select("*")
@@ -24,7 +22,6 @@ router.post("/generate", async (req, res) => {
 
     if (vErr) throw vErr;
 
-    // Fetch NGO
     const { data: ngo, error: nErr } = await supabase
       .from("ngos")
       .select("*")
