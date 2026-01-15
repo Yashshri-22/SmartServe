@@ -1,72 +1,147 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../services/supabaseClient"; 
-import { useAuth } from "../context/AuthContext"; 
+import { supabase } from "../services/supabaseClient";
+import { useAuth } from "../context/AuthContext";
+import { FaTrashAlt } from "react-icons/fa";
 import Navbar from "../components/Navbar";
-import { 
-  FaRobot, FaMapMarkerAlt, FaSearch, FaPlus, FaSave,
-  FaBuilding, FaPhone, FaTrash, FaHistory, FaUser, FaEnvelope
+import {
+  FaRobot,
+  FaMapMarkerAlt,
+  FaSearch,
+  FaPlus,
+  FaSave,
+  FaBuilding,
+  FaPhone,
+  FaTrash,
+  FaHistory,
+  FaUser,
+  FaEnvelope,
 } from "react-icons/fa";
 
 // --- AI LOGIC HELPERS ---
 const getDetectedSkills = (text) => {
-    if (!text) return ["General Volunteering"];
-    const lowerText = text.toLowerCase();
-    let skills = [];
+  if (!text) return ["General Volunteering"];
+  const lowerText = text.toLowerCase();
+  let skills = [];
 
-    // Education
-    if (lowerText.includes("teach") || lowerText.includes("tutor")) skills.push("Teaching");
-    if (lowerText.includes("math")) skills.push("Math");
-    if (lowerText.includes("science")) skills.push("Science");
-    if (lowerText.includes("kid") || lowerText.includes("child")) skills.push("Childcare");
+  // Education
+  if (lowerText.includes("teach") || lowerText.includes("tutor"))
+    skills.push("Teaching");
+  if (lowerText.includes("math")) skills.push("Math");
+  if (lowerText.includes("science")) skills.push("Science");
+  if (lowerText.includes("kid") || lowerText.includes("child"))
+    skills.push("Childcare");
 
-    // Arts & Music
-    if (lowerText.includes("photo") || lowerText.includes("camera")) skills.push("Photography");
-    if (lowerText.includes("dance") || lowerText.includes("dancing")) skills.push("Dancing");
-    if (lowerText.includes("sing") || lowerText.includes("music") || lowerText.includes("song")) skills.push("Singing/Music");
-    if (lowerText.includes("paint") || lowerText.includes("draw") || lowerText.includes("art")) skills.push("Art");
+  // Arts & Music
+  if (lowerText.includes("photo") || lowerText.includes("camera"))
+    skills.push("Photography");
+  if (lowerText.includes("dance") || lowerText.includes("dancing"))
+    skills.push("Dancing");
+  if (
+    lowerText.includes("sing") ||
+    lowerText.includes("music") ||
+    lowerText.includes("song")
+  )
+    skills.push("Singing/Music");
+  if (
+    lowerText.includes("paint") ||
+    lowerText.includes("draw") ||
+    lowerText.includes("art")
+  )
+    skills.push("Art");
 
-    // Tech
-    if (lowerText.includes("web") || lowerText.includes("code") || lowerText.includes("react")) skills.push("Web Development");
-    if (lowerText.includes("video") || lowerText.includes("edit")) skills.push("Video Editing");
-    if (lowerText.includes("app") || lowerText.includes("mobile")) skills.push("App Development");
+  // Tech
+  if (
+    lowerText.includes("web") ||
+    lowerText.includes("code") ||
+    lowerText.includes("react")
+  )
+    skills.push("Web Development");
+  if (lowerText.includes("video") || lowerText.includes("edit"))
+    skills.push("Video Editing");
+  if (lowerText.includes("app") || lowerText.includes("mobile"))
+    skills.push("App Development");
 
-    // Logistics
-    if (lowerText.includes("drive") || lowerText.includes("car")) skills.push("Driving");
-    if (lowerText.includes("food") || lowerText.includes("cook")) skills.push("Cooking");
-    if (lowerText.includes("event") || lowerText.includes("manage")) skills.push("Event Management");
-    
-    return skills.length > 0 ? skills : ["General Volunteering"];
+  // Logistics
+  if (lowerText.includes("drive") || lowerText.includes("car"))
+    skills.push("Driving");
+  if (lowerText.includes("food") || lowerText.includes("cook"))
+    skills.push("Cooking");
+  if (lowerText.includes("event") || lowerText.includes("manage"))
+    skills.push("Event Management");
+
+  return skills.length > 0 ? skills : ["General Volunteering"];
 };
 
 const extractMetadata = (text) => {
-    if (!text) return { duration: "Flexible" };
-    const lower = text.toLowerCase();
-    let duration = "Flexible";
-    const timePatterns = [
-        /(\d+)\s*months?/, /(\d+)\s*weeks?/, /(\d+)\s*days?/, /(\d+)\s*hours?/ 
-    ];
-    for (const pattern of timePatterns) {
-        const match = lower.match(pattern);
-        if (match) { duration = match[0]; break; }
+  if (!text) return { duration: "Flexible" };
+  const lower = text.toLowerCase();
+  let duration = "Flexible";
+  const timePatterns = [
+    /(\d+)\s*months?/,
+    /(\d+)\s*weeks?/,
+    /(\d+)\s*days?/,
+    /(\d+)\s*hours?/,
+  ];
+  for (const pattern of timePatterns) {
+    const match = lower.match(pattern);
+    if (match) {
+      duration = match[0];
+      break;
     }
-    return { duration };
+  }
+  return { duration };
 };
 
 export default function NgoDashboard() {
   const { session } = useAuth();
-  
+
   // Input State
   const [orgName, setOrgName] = useState("");
   const [contact, setContact] = useState("");
-  const [email, setEmail] = useState(""); 
+  const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [selectedPostId, setSelectedPostId] = useState(null);
-  
+
   // App State
   const [loading, setLoading] = useState(false);
   const [aiResult, setAiResult] = useState(null);
-  const [myPosts, setMyPosts] = useState([]); 
+  const [myPosts, setMyPosts] = useState([]);
+
+  // Interview Scheduling
+  const [applications, setApplications] = useState([]);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [interviewDate, setInterviewDate] = useState("");
+  const [interviewTime, setInterviewTime] = useState("");
+  const [meetLink, setMeetLink] = useState("");
+
+  const fetchApplicationsForPost = async (postId) => {
+    try {
+      const { data, error } = await supabase
+        .from("applications")
+        .select(
+          `
+        id,
+        interview_status,
+        interview_date,
+        interview_time,
+        meet_link,
+        volunteer_id,
+        volunteers!applications_volunteer_id_fkey (
+          full_name,
+          email
+        )
+      `
+        )
+        .eq("ngo_post_id", postId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setApplications(data || []);
+    } catch (error) {
+      console.error("Error fetching applications:", error.message);
+    }
+  };
 
   // --- FETCH PAST POSTS ON LOAD ---
   useEffect(() => {
@@ -78,10 +153,10 @@ export default function NgoDashboard() {
   const fetchMyPosts = async () => {
     try {
       const { data, error } = await supabase
-        .from('ngos')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false });
+        .from("ngos")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setMyPosts(data || []);
@@ -95,43 +170,45 @@ export default function NgoDashboard() {
     const value = e.target.value;
     // Regex: Only allow digits (0-9)
     if (/^\d*$/.test(value)) {
-        // Limit to 10 characters
-        if (value.length <= 10) {
-            setContact(value);
-        }
+      // Limit to 10 characters
+      if (value.length <= 10) {
+        setContact(value);
+      }
     }
   };
 
   // --- ACTION: POST REQUIREMENT ---
   const handlePost = async () => {
     if (!description || !location || !orgName || !contact || !email) {
-        return alert("Please fill all fields (including Email) to post.");
+      return alert("Please fill all fields (including Email) to post.");
     }
 
     if (contact.length !== 10) {
-        return alert("Contact number must be exactly 10 digits.");
+      return alert("Contact number must be exactly 10 digits.");
     }
-    
+
     setLoading(true);
     try {
       if (session?.user) {
         const skills = getDetectedSkills(description);
-        const { duration } = extractMetadata(description); 
-        
-        const { error } = await supabase.from('ngos').insert([{ 
+        const { duration } = extractMetadata(description);
+
+        const { error } = await supabase.from("ngos").insert([
+          {
             user_id: session.user.id,
-            org_name: orgName,        
+            org_name: orgName,
             contact_info: contact,
-            email: email,    
-            ai_needs: skills,         
-            raw_requirement: description, 
+            email: email,
+            ai_needs: skills,
+            raw_requirement: description,
             location: location,
-            duration: duration        
-        }]);
+            duration: duration,
+          },
+        ]);
 
         if (error) throw error;
-        
-        fetchMyPosts(); 
+
+        fetchMyPosts();
         alert("Requirement Posted Successfully!");
         resetForm();
       }
@@ -144,64 +221,73 @@ export default function NgoDashboard() {
 
   // --- ACTION: FIND MATCH ---
   const handleFindMatch = async (e) => {
-      e.preventDefault(); 
-      if (!description || !location) return alert("Please provide Description and Location.");
-      
-      setLoading(true);
-      setAiResult(null);
+    e.preventDefault();
+    if (!description || !location)
+      return alert("Please provide Description and Location.");
 
-      try {
-        const detectedSkills = getDetectedSkills(description);
+    setLoading(true);
+    setAiResult(null);
 
-        const { data: volunteers, error } = await supabase
-          .from('volunteers')
-          .select('*')
-          .ilike('location', `%${location}%`); 
+    try {
+      const detectedSkills = getDetectedSkills(description);
 
-        if (error) throw error;
+      const { data: volunteers, error } = await supabase
+        .from("volunteers")
+        .select("*")
+        .ilike("location", `%${location}%`);
 
-        const matches = volunteers.map(vol => {
+      if (error) throw error;
+
+      const matches = volunteers
+        .map((vol) => {
           let volSkills = vol.ai_skills || [];
-          if (typeof volSkills === 'string') {
-             try { volSkills = JSON.parse(volSkills); } catch(e) { volSkills = []; }
+          if (typeof volSkills === "string") {
+            try {
+              volSkills = JSON.parse(volSkills);
+            } catch (e) {
+              volSkills = [];
+            }
           }
           if (!Array.isArray(volSkills)) volSkills = [];
 
-          const overlap = volSkills.filter(skill => 
-            detectedSkills.some(need => skill.toLowerCase().includes(need.toLowerCase()))
+          const overlap = volSkills.filter((skill) =>
+            detectedSkills.some((need) =>
+              skill.toLowerCase().includes(need.toLowerCase())
+            )
           );
 
           if (overlap.length > 0) {
             return {
               ...vol,
-              score: Math.min(60 + (overlap.length * 15), 98),
-              matchedSkills: overlap
+              score: Math.min(60 + overlap.length * 15, 98),
+              matchedSkills: overlap,
             };
           }
           return null;
-        }).filter(Boolean).sort((a, b) => b.score - a.score);
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.score - a.score);
 
-        setAiResult({ skills: detectedSkills, matches });
-
-      } catch (error) {
-        console.error("Matching Error:", error);
-        alert("Something went wrong finding matches.");
-      } finally {
-        setLoading(false);
-      }
+      setAiResult({ skills: detectedSkills, matches });
+    } catch (error) {
+      console.error("Matching Error:", error);
+      alert("Something went wrong finding matches.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (e, postId) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 
     try {
-        const { error } = await supabase.from('ngos').delete().eq('id', postId);
-        if (error) throw error;
-        setMyPosts(myPosts.filter(post => post.id !== postId));
-        if (selectedPostId === postId) resetForm();
+      const { error } = await supabase.from("ngos").delete().eq("id", postId);
+      if (error) throw error;
+      setMyPosts(myPosts.filter((post) => post.id !== postId));
+      if (selectedPostId === postId) resetForm();
     } catch (error) {
-        alert("Error deleting post: " + error.message);
+      alert("Error deleting post: " + error.message);
     }
   };
 
@@ -209,11 +295,53 @@ export default function NgoDashboard() {
     setSelectedPostId(post.id);
     setOrgName(post.org_name || "");
     setContact(post.contact_info || "");
-    setEmail(post.email || ""); 
+    setEmail(post.email || "");
     setDescription(post.raw_requirement);
     setLocation(post.location);
     setAiResult(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    fetchApplicationsForPost(post.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleScheduleInterview = async () => {
+    if (!interviewDate || !interviewTime || !meetLink) {
+      return alert("Please fill all interview details");
+    }
+
+    try {
+      console.log("Updating application ID:", selectedApplication.id);
+
+      const { data, error } = await supabase
+        .from("applications")
+        .update({
+          interview_date: interviewDate,
+          interview_time: interviewTime,
+          meet_link: meetLink,
+          interview_status: "scheduled",
+        })
+        .eq("id", selectedApplication.id)
+        .select();
+
+      if (error) {
+        console.error("Update failed:", error);
+        throw error;
+      }
+
+      console.log("Updated row:", data);
+
+      if (error) throw error;
+
+      alert("Interview Scheduled!");
+      await fetchApplicationsForPost(selectedPostId);
+
+      // reset modal state
+      setSelectedApplication(null);
+      setInterviewDate("");
+      setInterviewTime("");
+      setMeetLink("");
+    } catch (error) {
+      alert("Error scheduling interview: " + error.message);
+    }
   };
 
   const resetForm = () => {
@@ -226,141 +354,448 @@ export default function NgoDashboard() {
     setAiResult(null);
   };
 
+  const handleCancelInterview = async (applicationId) => {
+    if (!window.confirm("Cancel this interview?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("applications")
+        .update({
+          interview_date: null,
+          interview_time: null,
+          meet_link: null,
+          interview_status: "pending",
+        })
+        .eq("id", applicationId);
+
+      if (error) throw error;
+
+      fetchApplicationsForPost(selectedPostId);
+    } catch (error) {
+      alert("Error cancelling interview: " + error.message);
+    }
+  };
+
+  const openRescheduleModal = (application) => {
+    setSelectedApplication(application);
+    setInterviewDate(application.interview_date || "");
+    setInterviewTime(application.interview_time || "");
+    setMeetLink(application.meet_link || "");
+  };
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-gray-50 font-sans text-gray-900">
       <Navbar />
       <div className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6">
-        
         <div className="relative mb-8 overflow-hidden rounded-[2rem] border border-gray-100 bg-white px-8 py-10 shadow-sm">
-           <div className="relative z-10">
-                <h1 className="mb-2 text-4xl font-extrabold text-gray-900">NGO <span className="text-teal-600">Dashboard</span></h1>
-                <p className="text-gray-500">Post requirements to find volunteers.</p>
-           </div>
+          <div className="relative z-10">
+            <h1 className="mb-2 text-4xl font-extrabold text-gray-900">
+              NGO <span className="text-teal-600">Dashboard</span>
+            </h1>
+            <p className="text-gray-500">
+              Post requirements to find volunteers.
+            </p>
+          </div>
         </div>
 
         <div className="grid items-start gap-8 lg:grid-cols-12">
           <div className="flex flex-col gap-6 lg:sticky lg:top-28 lg:col-span-5">
-            <div className={`bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-xl border relative overflow-hidden transition-all duration-300 ${selectedPostId ? 'border-teal-400 ring-4 ring-teal-50' : 'border-white/50 ring-1 ring-gray-200/50'}`}>
-              
+            <div
+              className={`bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-xl border relative overflow-hidden transition-all duration-300 ${
+                selectedPostId
+                  ? "border-teal-400 ring-4 ring-teal-50"
+                  : "border-white/50 ring-1 ring-gray-200/50"
+              }`}
+            >
               {selectedPostId && (
-                <div className="-mx-6 -mt-6 mb-4 flex items-center justify-between border-b border-teal-100 bg-teal-50 px-4 py-2 text-teal-700">
-                  <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider"><FaHistory /> Viewing Past Post</span>
-                  <button onClick={resetForm} className="flex items-center gap-1 text-xs font-bold underline hover:text-teal-900"><FaPlus /> Create New</button>
+                <div className="-mx-6 -mt-6 mb-4 flex items-center justify-between border-b border-teal-100 !bg-teal-50 px-4 py-2 !text-teal-700">
+                  <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                    <FaHistory /> Viewing Past Post
+                  </span>
+                  <button
+                    onClick={resetForm}
+                    className="flex items-center gap-1 !rounded-full !bg-teal-700 text-xs font-bold text-white no-underline hover:text-teal-900"
+                  >
+                    <FaPlus /> Create New
+                  </button>
                 </div>
               )}
 
               <h2 className="mb-5 flex items-center gap-3 text-lg font-bold text-gray-800">
-                <div className={`p-2 rounded-xl text-xl ${selectedPostId ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-500'}`}><FaRobot /></div>
+                <div
+                  className={`p-2 rounded-xl text-xl ${
+                    selectedPostId
+                      ? "bg-teal-100 text-teal-600"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  <FaRobot />
+                </div>
                 <span>AI Requirement Scanner</span>
               </h2>
 
-              <form onSubmit={handleFindMatch} className="relative z-10 space-y-4">
+              <form
+                onSubmit={handleFindMatch}
+                className="relative z-10 space-y-4"
+              >
                 <div>
-                   <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Organization Name</label>
-                   <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
-                      <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500"><FaBuilding /></div>
-                      <input type="text" placeholder="e.g. Hope Foundation" className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none" value={orgName} onChange={(e) => setOrgName(e.target.value)} />
-                   </div>
+                  <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                    Organization Name
+                  </label>
+                  <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
+                    <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500">
+                      <FaBuilding />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="e.g. Hope Foundation"
+                      className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none"
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Describe your Need</label>
-                  <textarea placeholder="e.g. We need a math teacher..." className="h-28 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm font-medium text-gray-700 outline-none transition-all focus:border-[#319795] focus:ring-2 focus:ring-teal-500/10" value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
+                  <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                    Describe your Need
+                  </label>
+                  <textarea
+                    placeholder="e.g. We need a math teacher..."
+                    className="h-28 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm font-medium text-gray-700 outline-none transition-all focus:border-[#319795] focus:ring-2 focus:ring-teal-500/10"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                  ></textarea>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                        <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Location</label>
-                        <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
-                            <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500"><FaMapMarkerAlt /></div>
-                            <input type="text" placeholder="e.g. Pune" className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none" value={location} onChange={(e) => setLocation(e.target.value)} required />
-                        </div>
+                  <div>
+                    <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                      Location
+                    </label>
+                    <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
+                      <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500">
+                        <FaMapMarkerAlt />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="e.g. Pune"
+                        className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        required
+                      />
                     </div>
-                    <div>
-                        <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Contact No.</label>
-                        <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
-                            <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500"><FaPhone /></div>
-                            <input 
-                                type="text" 
-                                placeholder="e.g. 9876543210" 
-                                className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none" 
-                                value={contact} 
-                                onChange={handleContactChange} 
-                                maxLength={10}
-                            />
-                        </div>
+                  </div>
+                  <div>
+                    <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                      Contact No.
+                    </label>
+                    <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
+                      <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500">
+                        <FaPhone />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="e.g. 9876543210"
+                        className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none"
+                        value={contact}
+                        onChange={handleContactChange}
+                        maxLength={10}
+                      />
                     </div>
+                  </div>
                 </div>
 
                 {/* --- NEW EMAIL INPUT --- */}
                 <div>
-                    <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Email Address (For Apps)</label>
-                    <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
-                        <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500"><FaEnvelope /></div>
-                        <input type="email" placeholder="ngo@example.com" className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                    Email Address (For Apps)
+                  </label>
+                  <div className="flex w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 focus-within:border-[#319795] focus-within:ring-2 focus-within:ring-teal-500/10">
+                    <div className="shrink-0 pl-4 pr-2 text-lg text-teal-500">
+                      <FaEnvelope />
                     </div>
+                    <input
+                      type="email"
+                      placeholder="ngo@example.com"
+                      className="w-full border-none bg-transparent py-3 pr-4 text-sm font-medium text-gray-700 outline-none"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-3 pt-2">
-                    <button type="submit" disabled={loading} className="w-full !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.01] disabled:opacity-70">{loading ? "Processing..." : <><FaSearch className="mr-2 inline"/> Find Match</>}</button>
-                    {!selectedPostId && ( 
-                        <button type="button" onClick={handlePost} disabled={loading} className="w-full !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.01] disabled:opacity-70"><FaSave className="mr-2 inline"/> Post Requirement</button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.01] disabled:opacity-70"
+                  >
+                    {loading ? (
+                      "Processing..."
+                    ) : (
+                      <>
+                        <FaSearch className="mr-2 inline" /> Find Match
+                      </>
                     )}
+                  </button>
+                  {!selectedPostId && (
+                    <button
+                      type="button"
+                      onClick={handlePost}
+                      disabled={loading}
+                      className="w-full !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.01] disabled:opacity-70"
+                    >
+                      <FaSave className="mr-2 inline" /> Post Requirement
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
 
             {/* RECENT POSTS LIST */}
             <div className="w-full !rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
-              <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-700"><FaHistory className="text-teal-500" /> Recent Posts</h3>
-              {myPosts.length === 0 ? <div className="py-6 text-center text-xs text-gray-400">No history yet.</div> : (
+              <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-700">
+                <FaHistory className="text-teal-500" /> Recent Posts
+              </h3>
+              {myPosts.length === 0 ? (
+                <div className="py-6 text-center text-xs text-gray-400">
+                  No history yet.
+                </div>
+              ) : (
                 <div className="custom-scrollbar max-h-64 space-y-3 overflow-y-auto pr-2">
                   {myPosts.map((post) => (
-                    <div key={post.id} onClick={() => loadFromHistory(post)} className={`group p-3 rounded-xl border cursor-pointer transition-all relative ${selectedPostId === post.id ? "bg-teal-50 border-teal-300 ring-1 ring-teal-300" : "bg-gray-50 border-transparent hover:border-teal-200"}`}>
-                      <button onClick={(e) => handleDelete(e, post.id)} className="absolute right-3 top-3 z-20 !rounded-full text-gray-500 hover:text-red-600"><FaTrash className="text-xs" /></button>
-                      <div className="text-[11px] font-bold text-gray-800">{post.org_name}</div>
-                      <div className="text-[10px] text-gray-500">{new Date(post.created_at).toLocaleDateString()}</div>
+                    <div
+                      key={post.id}
+                      onClick={() => loadFromHistory(post)}
+                      className={`group p-3 rounded-xl border cursor-pointer transition-all relative ${
+                        selectedPostId === post.id
+                          ? "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
+                          : "bg-gray-50 border-transparent hover:border-teal-200"
+                      }`}
+                    >
+                      <button
+                        onClick={(e) => handleDelete(e, post.id)}
+                        className="absolute right-3 top-3 z-20 !rounded-full text-gray-500 hover:text-red-600"
+                      >
+                        <FaTrash className="text-xs" />
+                      </button>
+                      <div className="text-[11px] font-bold text-gray-800">
+                        {post.org_name}
+                      </div>
+                      <div className="text-[10px] text-gray-500">
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+            {selectedPostId && (
+              <div className="w-full rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
+                <h3 className="mb-4 text-base font-bold text-gray-700">
+                  Applied Volunteers
+                </h3>
+
+                {applications.length === 0 ? (
+                  <p className="text-sm text-gray-400">No applications yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {applications.map((app) => (
+                      <div
+                        key={app.id}
+                        className="flex items-center justify-between rounded-xl border bg-gray-50 p-3"
+                      >
+                        <div>
+                          <p className="font-bold text-gray-800">
+                            {app.volunteers?.full_name || "Volunteer"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Status: {app.interview_status}
+                          </p>
+                        </div>
+
+                        {app.interview_status === "scheduled" ? (
+                          <div className="flex gap-2">
+                            <a
+                              href={app.meet_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="!rounded-full !bg-teal-600 px-4 py-3 text-xs font-bold text-white !no-underline"
+                            >
+                              Join Meet
+                            </a>
+
+                            <button
+                              onClick={() => openRescheduleModal(app)}
+                              className="!rounded-full !bg-gray-900 px-4 py-1.5 text-xs font-bold text-white"
+                            >
+                              Reschedule
+                            </button>
+
+                            <button
+                              onClick={() => handleCancelInterview(app.id)}
+                              className="!hover:text-red-700 !rounded-full px-3 py-2 !text-red-500"
+                              title="Cancel Interview"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setSelectedApplication(app)}
+                            className="rounded-full bg-gray-900 px-4 py-1.5 text-xs font-bold text-white"
+                          >
+                            Schedule
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="pb-10 lg:col-span-7">
             {!aiResult && !loading && (
               <div className="flex min-h-[400px] flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-gray-200 bg-white/60 p-10 text-center backdrop-blur-sm">
-                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-300"><FaSearch className="text-3xl" /></div>
-                <h3 className="text-xl font-bold text-gray-400">Ready to Match</h3>
+                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-300">
+                  <FaSearch className="text-3xl" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-400">
+                  Ready to Match
+                </h3>
               </div>
             )}
-            
+
             {aiResult && (
               <div className="animate-fade-in-up space-y-6">
                 <div className="rounded-[2rem] border border-teal-100 bg-gradient-to-br from-teal-50 via-white to-teal-50/30 p-6 shadow-sm">
-                  <h3 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-800"><FaRobot className="text-lg" /> AI Detected Skills</h3>
-                  <div className="flex flex-wrap gap-2">{aiResult.skills.map((skill, i) => <span key={i} className="rounded-xl border border-teal-100 bg-white px-4 py-2 text-xs font-bold text-teal-800 shadow-sm">{skill}</span>)}</div>
+                  <h3 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-800">
+                    <FaRobot className="text-lg" /> AI Detected Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {aiResult.skills.map((skill, i) => (
+                      <span
+                        key={i}
+                        className="rounded-xl border border-teal-100 bg-white px-4 py-2 text-xs font-bold text-teal-800 shadow-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="flex items-center gap-3 text-xl font-bold text-gray-900">Matches Found <span className="rounded-full bg-gray-900 px-2.5 py-1 text-xs text-teal-400 shadow-md">{aiResult.matches.length}</span></h3>
+                <h3 className="flex items-center gap-3 text-xl font-bold text-gray-900">
+                  Matches Found{" "}
+                  <span className="rounded-full bg-gray-900 px-2.5 py-1 text-xs text-teal-400 shadow-md">
+                    {aiResult.matches.length}
+                  </span>
+                </h3>
                 <div className="grid gap-4">
                   {aiResult.matches.map((vol) => (
-                    <div key={vol.id} className="group rounded-2xl bg-white p-5 shadow-sm transition-all hover:shadow-lg">
+                    <div
+                      key={vol.id}
+                      className="group rounded-2xl bg-white p-5 shadow-sm transition-all hover:shadow-lg"
+                    >
                       <div className="flex justify-between gap-6">
                         <div className="flex items-start gap-4">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 font-black uppercase text-gray-500">{vol.full_name ? vol.full_name.charAt(0) : <FaUser />}</div>
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 font-black uppercase text-gray-500">
+                            {vol.full_name ? (
+                              vol.full_name.charAt(0)
+                            ) : (
+                              <FaUser />
+                            )}
+                          </div>
                           <div>
                             {/* USE REAL FULL NAME */}
-                            <h4 className="text-lg font-bold text-gray-900">{vol.full_name || "Volunteer"}</h4>
-                            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-gray-500"><FaMapMarkerAlt className="text-teal-500" /> {vol.location}</p>
+                            <h4 className="text-lg font-bold text-gray-900">
+                              {vol.full_name || "Volunteer"}
+                            </h4>
+                            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                              <FaMapMarkerAlt className="text-teal-500" />{" "}
+                              {vol.location}
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-black text-gray-900">{vol.score}<span className="text-base text-teal-500">%</span></div>
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Match Score</div>
+                          <div className="text-2xl font-black text-gray-900">
+                            {vol.score}
+                            <span className="text-base text-teal-500">%</span>
+                          </div>
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                            Match Score
+                          </div>
                         </div>
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {selectedApplication && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                  <h3 className="text-lg font-bold">Schedule Interview</h3>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-gray-500">
+                        Interview Date
+                      </label>
+                      <input
+                        type="date"
+                        value={interviewDate}
+                        onChange={(e) => setInterviewDate(e.target.value)}
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500/30"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-gray-500">
+                        Interview Time
+                      </label>
+                      <input
+                        type="time"
+                        value={interviewTime}
+                        onChange={(e) => setInterviewTime(e.target.value)}
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500/30"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-gray-500">
+                        Google Meet Link
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="https://meet.google.com/xxx"
+                        value={meetLink}
+                        onChange={(e) => setMeetLink(e.target.value)}
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500/30"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex justify-end gap-3">
+                    <button
+                      onClick={() => setSelectedApplication(null)}
+                      className="!rounded-full !border px-4 py-2 text-sm text-white"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      onClick={handleScheduleInterview}
+                      className="!rounded-full !bg-teal-600 px-4 py-2 text-sm font-bold text-white"
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
