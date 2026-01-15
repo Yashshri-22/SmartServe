@@ -231,11 +231,11 @@ export default function NgoDashboard() {
       <Navbar />
       <div className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6">
         
-        <div className="mx-auto mb-10 max-w-3xl text-center">
-           <h1 className="mb-3 text-4xl font-extrabold tracking-tight text-gray-900">
-             NGO <span className="bg-gradient-to-r from-[#319795] to-teal-500 bg-clip-text text-transparent">Dashboard</span>
-           </h1>
-           <p className="text-lg font-medium text-gray-600">Post requirements to find volunteers.</p>
+        <div className="relative mb-8 overflow-hidden rounded-[2rem] border border-gray-100 bg-white px-8 py-10 shadow-sm">
+           <div className="relative z-10">
+                <h1 className="mb-2 text-4xl font-extrabold text-gray-900">NGO <span className="text-teal-600">Dashboard</span></h1>
+                <p className="text-gray-500">Post requirements to find volunteers.</p>
+           </div>
         </div>
 
         <div className="grid items-start gap-8 lg:grid-cols-12">
