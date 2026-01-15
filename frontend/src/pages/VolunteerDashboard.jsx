@@ -303,31 +303,31 @@ export default function VolunteerDashboard() {
       }
   };
 
-  if (checkingProfile) return <div className="h-screen flex items-center justify-center text-teal-600">Loading...</div>;
+  if (checkingProfile) return <div className="flex h-screen items-center justify-center text-teal-600">Loading...</div>;
 
   // ================= VIEW 1: IDENTITY FORM =================
   if (!profileComplete) {
     return (
-        <div className="bg-gray-50 min-h-screen font-sans text-gray-800">
+        <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
             <Navbar />
-            <div className="max-w-4xl mx-auto px-6 pt-32 pb-20">
-                <div className="bg-white rounded-[2rem] shadow-xl border border-teal-100 p-10">
-                    <h1 className="text-3xl font-extrabold text-gray-900 mb-2 text-center">Complete Your Profile</h1>
-                    <p className="text-center text-gray-500 mb-8">Tell us a bit about yourself to get started.</p>
+            <div className="mx-auto max-w-4xl px-6 pb-20 pt-32">
+                <div className="rounded-[2rem] border border-teal-100 bg-white p-10 shadow-xl">
+                    <h1 className="mb-2 text-center text-3xl font-extrabold text-gray-900">Complete Your Profile</h1>
+                    <p className="mb-8 text-center text-gray-500">Tell us a bit about yourself to get started.</p>
                     
                     <form onSubmit={handleCreateProfile} className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid gap-6 md:grid-cols-2">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Full Name</label>
+                                <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Full Name</label>
                                 {/* FIX: Corrected className syntax with quotes */}
-                                <input type="text" className="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-teal-500/20" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="e.g. John Doe" />
+                                <input type="text" className="w-full rounded-xl border bg-gray-50 p-3 outline-none focus:ring-2 focus:ring-teal-500/20" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="e.g. John Doe" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Contact Number</label>
+                                <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Contact Number</label>
                                 <input 
                                     type="text" 
                                     maxLength={10}
-                                    className="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-teal-500/20" 
+                                    className="w-full rounded-xl border bg-gray-50 p-3 outline-none focus:ring-2 focus:ring-teal-500/20" 
                                     value={contactNo} 
                                     onChange={handleContactChange} 
                                     required 
@@ -337,19 +337,19 @@ export default function VolunteerDashboard() {
                         </div>
 
                         <div>
-                             <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Experience (Duration)</label>
-                             <input type="text" className="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-teal-500/20" value={experience} onChange={(e) => setExperience(e.target.value)} required placeholder="e.g. 1 Year" />
+                             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Experience (Duration)</label>
+                             <input type="text" className="w-full rounded-xl border bg-gray-50 p-3 outline-none focus:ring-2 focus:ring-teal-500/20" value={experience} onChange={(e) => setExperience(e.target.value)} required placeholder="e.g. 1 Year" />
                         </div>
                         
                         <div>
-                             <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Upload Resume (PDF)</label>
-                             <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                                <input type="file" accept="application/pdf" onChange={(e) => setResumeFile(e.target.files[0])} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Upload Resume (PDF)</label>
+                             <div className="relative cursor-pointer rounded-xl border-2 border-dashed border-gray-200 p-4 text-center hover:bg-gray-50">
+                                <input type="file" accept="application/pdf" onChange={(e) => setResumeFile(e.target.files[0])} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
                                 <span className="text-sm text-gray-500">{resumeFile ? resumeFile.name : "Click to select file"}</span>
                              </div>
                         </div>
 
-                        <button type="submit" disabled={uploading} className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <button type="submit" disabled={uploading} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#319795] to-teal-600 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70">
                             {uploading ? "Saving..." : "Save & Continue to Dashboard"}
                         </button>
                     </form>
@@ -361,53 +361,53 @@ export default function VolunteerDashboard() {
 
   // ================= VIEW 2: DASHBOARD =================
   return (
-    <div className="bg-gray-50 min-h-screen font-sans text-gray-800">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+      <div className="pt-34 mx-auto max-w-7xl px-4 pb-20 sm:px-6">
         
         {/* HERO */}
-        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 mb-8 relative overflow-hidden">
+        <div className="relative mb-8 overflow-hidden rounded-[2rem] border border-gray-100 bg-white px-8 py-10 shadow-sm">
            <div className="relative z-10">
-                <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Volunteer <span className="text-teal-600">Dashboard</span></h1>
+                <h1 className="mb-2 text-4xl font-extrabold text-gray-900">Volunteer <span className="text-teal-600">Dashboard</span></h1>
                 <p className="text-gray-500">Welcome, {fullName}. Describe your skills below to find matches.</p>
            </div>
         </div>
 
         {/* INPUTS */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-           <div className="bg-white p-8 rounded-[2rem] shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Your Volunteering Details</h2>
+        <div className="mb-12 grid gap-8 lg:grid-cols-2">
+           <div className="rounded-[2rem] border border-gray-100 bg-white p-8 shadow-lg">
+              <h2 className="mb-6 text-xl font-bold text-gray-900">Your Volunteering Details</h2>
               
               <div className="space-y-4">
                  <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase mb-2 block"><FaPencilAlt className="inline mr-1"/> How do you want to help?</label>
+                    <label className="mb-2 block text-xs font-bold uppercase text-gray-500"><FaPencilAlt className="mr-1 inline"/> How do you want to help?</label>
                     <textarea 
                        value={description}
                        onChange={(e) => setDescription(e.target.value)}
                        placeholder="e.g. I am good at photography and I can also teach math to kids..."
-                       className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm h-32 resize-none focus:ring-2 focus:ring-teal-500/20"
+                       className="h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm outline-none focus:ring-2 focus:ring-teal-500/20"
                     ></textarea>
                  </div>
                  
                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block"><FaClock className="inline mr-1"/> Availability</label>
+                        <label className="mb-2 block text-xs font-bold uppercase text-gray-500"><FaClock className="mr-1 inline"/> Availability</label>
                         <input 
                            type="text"
                            value={availability}
                            onChange={(e) => setAvailability(e.target.value)}
-                           className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm"
+                           className="w-full rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm outline-none"
                            placeholder="e.g. 2 Months"
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block"><FaMapMarkerAlt className="inline mr-1"/> Location</label>
+                        <label className="mb-2 block text-xs font-bold uppercase text-gray-500"><FaMapMarkerAlt className="mr-1 inline"/> Location</label>
                         <input 
                            type="text"
                            value={location}
                            onChange={(e) => setLocation(e.target.value)}
-                           className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm"
+                           className="w-full rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm outline-none"
                            placeholder="e.g. Pune"
                         />
                     </div>
@@ -415,12 +415,12 @@ export default function VolunteerDashboard() {
 
                  {/* --- NEW EMAIL INPUT --- */}
                  <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block"><FaEnvelope className="inline mr-1"/> Your Email (For Applications)</label>
+                        <label className="mb-2 block text-xs font-bold uppercase text-gray-500"><FaEnvelope className="mr-1 inline"/> Your Email (For Applications)</label>
                         <input 
                            type="email"
                            value={email}
                            onChange={(e) => setEmail(e.target.value)}
-                           className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm"
+                           className="w-full rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm outline-none"
                            placeholder="your-email@example.com"
                         />
                  </div>
@@ -428,7 +428,7 @@ export default function VolunteerDashboard() {
                  <button 
                     onClick={handleFindOpportunities} 
                     disabled={loading}
-                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex w-full items-center justify-center gap-2 !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
                  >
                     {loading ? "Analyzing & Matching..." : "Find Opportunities"}
                  </button>
@@ -436,20 +436,20 @@ export default function VolunteerDashboard() {
            </div>
 
            {/* AI SKILLS BOX */}
-           <div className="bg-white p-8 rounded-[2rem] shadow-lg border border-gray-100 flex flex-col h-full">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">AI-Identified Skills</h2>
-              <p className="text-sm text-gray-400 mb-6">We will match you based on these tags.</p>
+           <div className="flex h-full flex-col rounded-[2rem] border border-gray-100 bg-white p-8 shadow-lg">
+              <h2 className="mb-2 text-xl font-bold text-gray-900">AI-Identified Skills</h2>
+              <p className="mb-6 text-sm text-gray-400">We will match you based on these tags.</p>
               
-              <div className="flex-1 bg-gray-50 rounded-2xl p-6 border-2 border-dashed border-gray-200">
+              <div className="flex-1 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 p-6">
                  {detectedSkills.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                       <FaRobot className="text-4xl mb-3 opacity-20" />
+                    <div className="flex h-full flex-col items-center justify-center text-gray-400">
+                       <FaRobot className="mb-3 text-4xl opacity-20" />
                        <span className="text-sm font-medium">Type your description to generate tags</span>
                     </div>
                  ) : (
-                    <div className="flex flex-wrap gap-3 content-start">
+                    <div className="flex flex-wrap content-start gap-3">
                        {detectedSkills.map((skill, i) => (
-                          <span key={i} className="px-4 py-2 bg-white text-teal-700 font-bold text-sm rounded-lg shadow-sm border border-teal-100 animate-fade-in-up">
+                          <span key={i} className="animate-fade-in-up rounded-lg border border-teal-100 bg-white px-4 py-2 text-sm font-bold text-teal-700 shadow-sm">
                              {skill}
                           </span>
                        ))}
@@ -461,41 +461,41 @@ export default function VolunteerDashboard() {
 
         {/* FEED SECTION */}
         <div>
-           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+           <h3 className="mb-6 flex items-center gap-3 text-2xl font-bold text-gray-900">
               <FaBuilding className="text-teal-500" /> 
               {detectedSkills.length > 0 ? "Strict Skill Matches" : "Recent Opportunities"}
-              <span className="text-sm font-normal text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-normal text-gray-500">
                  {opportunities.length} found
               </span>
            </h3>
 
-           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {opportunities.length > 0 ? (
                  opportunities.map((post) => {
                     const isApplied = appliedPostIds.includes(post.id); 
 
                     return (
-                    <div key={post.id} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
-                       <div className="flex justify-between items-start mb-4">
-                          <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold text-xl uppercase">
+                    <div key={post.id} className="flex flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                       <div className="mb-4 flex items-start justify-between">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-50 text-xl font-bold uppercase text-teal-600">
                              {post.org_name ? post.org_name.charAt(0) : "N"}
                           </div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 px-2 py-1 rounded-md">
+                          <span className="rounded-md bg-gray-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                              {new Date(post.created_at).toLocaleDateString()}
                           </span>
                        </div>
                        
-                       <h4 className="font-bold text-lg text-gray-900 mb-1">{post.org_name || "Unknown Organization"}</h4>
+                       <h4 className="mb-1 text-lg font-bold text-gray-900">{post.org_name || "Unknown Organization"}</h4>
                        
-                       <div className="flex items-center gap-2 mb-3 text-xs font-medium text-gray-500">
+                       <div className="mb-3 flex items-center gap-2 text-xs font-medium text-gray-500">
                           <span className="flex items-center gap-1"><FaMapMarkerAlt /> {post.location}</span>
-                          <span className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded text-gray-600">
+                          <span className="flex items-center gap-1 rounded bg-gray-100 px-2 py-0.5 text-gray-600">
                               <FaClock /> {post.duration || "Flexible"}
                           </span>
                        </div>
 
                        {/* Show Skills Needed by NGO */}
-                       <div className="flex flex-wrap gap-1 mb-4">
+                       <div className="mb-4 flex flex-wrap gap-1">
                            {post.ai_needs && (typeof post.ai_needs === 'string' ? JSON.parse(post.ai_needs) : post.ai_needs).map((skill, idx) => (
                                <span key={idx} className={`text-[10px] px-2 py-1 rounded border ${detectedSkills.includes(skill) ? 'bg-teal-100 text-teal-800 border-teal-200 font-bold' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                                    {skill}
@@ -503,13 +503,13 @@ export default function VolunteerDashboard() {
                            ))}
                        </div>
 
-                       <p className="text-sm text-gray-600 line-clamp-2 mb-4 flex-grow">"{post.raw_requirement}"</p>
+                       <p className="mb-4 line-clamp-2 flex-grow text-sm text-gray-600">"{post.raw_requirement}"</p>
                        
                        {/* APPLY BUTTON (Dynamic) */}
                        <button 
                           onClick={() => handleApply(post)}
                           disabled={isApplied}
-                          className={` w-full py-3 rounded-2xl bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2
+                          className={` w-full py-3 !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2
                             ${isApplied 
                                 ? 'bg-green-100 text-green-700 cursor-default border border-green-200' 
                                 : 'bg-gray-900 text-white hover:opacity-90 shadow-md'
@@ -520,7 +520,7 @@ export default function VolunteerDashboard() {
                     </div>
                  )})
               ) : (
-                 <div className="col-span-full py-12 text-center text-gray-400 bg-white rounded-3xl border border-dashed">
+                 <div className="col-span-full rounded-3xl border border-dashed bg-white py-12 text-center text-gray-400">
                     {detectedSkills.length > 0 
                         ? "No NGOs match your specific skills yet." 
                         : "Enter your skills above to find matches."}
