@@ -22,11 +22,7 @@ import {
   FaFilePdf,
   FaEye,
   FaTrash,
-<<<<<<< HEAD
   FaEdit,
-=======
-  FaEdit, // Added Icon
->>>>>>> adbd5c28119bccbef91a4e00f4e5e43fd3565c15
 } from "react-icons/fa";
 
 // --- API HELPER (From your original code) ---
@@ -34,7 +30,6 @@ const API_URL = "http://localhost:5000/api"; // Adjust port if needed
 
 const fetchAiSkills = async (text) => {
   if (!text) return ["General Volunteering"];
-<<<<<<< HEAD
   try {
     const response = await axios.post(`${API_URL}/ai/analyze`, {
       text: text,
@@ -46,51 +41,6 @@ const fetchAiSkills = async (text) => {
     console.error("AI Fetch Error", error);
     return ["General Volunteering"];
   }
-=======
-  const lowerText = text.toLowerCase();
-  let skills = [];
-
-  if (lowerText.includes("teach") || lowerText.includes("tutor"))
-    skills.push("Teaching");
-  if (lowerText.includes("math")) skills.push("Math");
-  if (lowerText.includes("science")) skills.push("Science");
-  if (lowerText.includes("kid") || lowerText.includes("child"))
-    skills.push("Childcare");
-  if (lowerText.includes("photo") || lowerText.includes("camera"))
-    skills.push("Photography");
-  if (lowerText.includes("dance") || lowerText.includes("dancing"))
-    skills.push("Dancing");
-  if (
-    lowerText.includes("sing") ||
-    lowerText.includes("music") ||
-    lowerText.includes("song")
-  )
-    skills.push("Singing/Music");
-  if (
-    lowerText.includes("paint") ||
-    lowerText.includes("draw") ||
-    lowerText.includes("art")
-  )
-    skills.push("Art");
-  if (
-    lowerText.includes("web") ||
-    lowerText.includes("code") ||
-    lowerText.includes("react")
-  )
-    skills.push("Web Development");
-  if (lowerText.includes("video") || lowerText.includes("edit"))
-    skills.push("Video Editing");
-  if (lowerText.includes("app") || lowerText.includes("mobile"))
-    skills.push("App Development");
-  if (lowerText.includes("drive") || lowerText.includes("car"))
-    skills.push("Driving");
-  if (lowerText.includes("food") || lowerText.includes("cook"))
-    skills.push("Cooking");
-  if (lowerText.includes("event") || lowerText.includes("manage"))
-    skills.push("Event Management");
-
-  return skills.length > 0 ? skills : ["General Volunteering"];
->>>>>>> adbd5c28119bccbef91a4e00f4e5e43fd3565c15
 };
 
 const extractMetadata = (text) => {
@@ -803,11 +753,7 @@ export default function NgoDashboard() {
                               rel="noopener noreferrer"
                               className="inline-flex items-center justify-center rounded-full bg-teal-600 px-5 py-2.5 text-xs font-bold !text-white !no-underline shadow-sm hover:bg-teal-700"
                             >
-<<<<<<< HEAD
                               Join Meet
-=======
-                              Join Meet 
->>>>>>> adbd5c28119bccbef91a4e00f4e5e43fd3565c15
                             </a>
 
                             <button

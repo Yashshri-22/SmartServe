@@ -29,7 +29,6 @@ const API_URL = "http://localhost:5000/api";
 
 const fetchAiSkills = async (text) => {
   if (!text) return [];
-<<<<<<< HEAD
   try {
     const response = await axios.post(`${API_URL}/ai/analyze`, {
       text: text,
@@ -40,47 +39,6 @@ const fetchAiSkills = async (text) => {
     console.error("AI Fetch Error", error);
     return [];
   }
-=======
-  const lowerText = text.toLowerCase();
-  let skills = [];
-
-  if (lowerText.includes("teach") || lowerText.includes("tutor"))
-    skills.push("Teaching");
-  if (lowerText.includes("math")) skills.push("Math");
-  if (lowerText.includes("science")) skills.push("Science");
-  if (lowerText.includes("kid") || lowerText.includes("child"))
-    skills.push("Childcare");
-  if (lowerText.includes("photo") || lowerText.includes("camera"))
-    skills.push("Photography");
-  if (lowerText.includes("dance") || lowerText.includes("dancing"))
-    skills.push("Dancing");
-  if (
-    lowerText.includes("sing") ||
-    lowerText.includes("music") ||
-    lowerText.includes("song")
-  )
-    skills.push("Singing/Music");
-  if (
-    lowerText.includes("paint") ||
-    lowerText.includes("draw") ||
-    lowerText.includes("art")
-  )
-    skills.push("Art");
-  if (
-    lowerText.includes("web") ||
-    lowerText.includes("code") ||
-    lowerText.includes("react")
-  )
-    skills.push("Web Development");
-  if (lowerText.includes("video") || lowerText.includes("edit"))
-    skills.push("Video Editing");
-  if (lowerText.includes("drive") || lowerText.includes("car"))
-    skills.push("Driving");
-  if (lowerText.includes("food") || lowerText.includes("cook"))
-    skills.push("Cooking");
-
-  return [...new Set(skills)];
->>>>>>> adbd5c28119bccbef91a4e00f4e5e43fd3565c15
 };
 
 export default function VolunteerDashboard() {
@@ -307,10 +265,7 @@ export default function VolunteerDashboard() {
       // FORCE RE-FETCH ON CLICK TO BE SURE
       const currentSkills = await fetchAiSkills(description);
       setDetectedSkills(currentSkills);
-<<<<<<< HEAD
       
-=======
->>>>>>> adbd5c28119bccbef91a4e00f4e5e43fd3565c15
       const { error: updateError } = await supabase
         .from("volunteers")
         .update({
