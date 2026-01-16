@@ -188,3 +188,96 @@
   gap: 5px;
   font-weight: 500;
 }
+
+/* ================= RESPONSIVE FIXES ================= */
+
+/* Tablets & small laptops (≤ 1024px) */
+@media (max-width: 1024px) {
+  .main-title {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+  }
+
+  .cards-wrapper {
+    gap: 30px;
+  }
+
+  .role-card {
+    width: 380px;
+    padding: 40px 30px;
+    min-height: 400px;
+  }
+
+  .card-title {
+    font-size: 1.75rem;
+  }
+
+  .card-desc {
+    font-size: 1rem;
+  }
+}
+
+/* Tablets & large phones (≤ 768px) */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 20px;
+  }
+
+  .main-title {
+    font-size: 2.2rem;
+    margin-bottom: 35px;
+  }
+
+  .cards-wrapper {
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .role-card {
+    width: 100%;
+    max-width: 420px;
+    min-height: auto; /* allow natural height */
+    padding: 35px 25px;
+  }
+
+  .card-title {
+    font-size: 1.6rem;
+  }
+
+  .card-desc {
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+  }
+}
+
+/* Small phones (≤ 480px) */
+@media (max-width: 480px) {
+  .main-title {
+    font-size: 1.9rem;
+    margin-bottom: 30px;
+  }
+
+  .role-card {
+    padding: 30px 20px;
+    border-radius: 16px;
+  }
+
+  .card-badge {
+    font-size: 0.75rem;
+    padding: 6px 14px;
+  }
+
+  .card-title {
+    font-size: 1.4rem;
+  }
+
+  .black-btn {
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+
+  .input-field {
+    font-size: 0.95rem;
+    padding: 12px;
+  }
+}

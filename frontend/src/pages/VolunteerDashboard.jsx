@@ -521,11 +521,11 @@ Meet: ${interview.meet_link}
     <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
       <Navbar />
 
-      <div className="pt-34 mx-auto max-w-7xl px-4 pb-20 sm:px-6">
+      <div className="mx-auto max-w-7xl px-3 pb-20 pt-28 sm:px-6">
         {/* HERO */}
         <div className="relative mb-8 overflow-hidden rounded-[2rem] border border-gray-100 bg-white px-8 py-10 shadow-sm">
           <div className="relative z-10">
-            <h1 className="mb-2 text-4xl font-extrabold text-gray-900">
+            <h1 className="mb-2 text-2xl font-extrabold text-gray-900 sm:text-3xl md:text-4xl">
               Volunteer <span className="text-teal-600">Dashboard</span>
             </h1>
             <p className="text-gray-500">
@@ -535,8 +535,8 @@ Meet: ${interview.meet_link}
         </div>
 
         {/* INPUTS */}
-        <div className="mb-12 grid gap-8 lg:grid-cols-2">
-          <div className="rounded-[2rem] border border-gray-100 bg-white p-8 shadow-lg">
+        <div className="mb-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-lg sm:p-8">
             <h2 className="mb-6 text-xl font-bold text-gray-900">
               Your Volunteering Details
             </h2>
@@ -551,11 +551,11 @@ Meet: ${interview.meet_link}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="e.g. I am good at photography and I can also teach math to kids..."
-                  className="h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm outline-none focus:ring-2 focus:ring-teal-500/20"
+                  className="min-h-[120px] w-full resize-none rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm outline-none focus:ring-2 focus:ring-teal-500/20 sm:h-32"
                 ></textarea>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
                     <FaClock className="mr-1 inline" /> Availability
@@ -608,7 +608,7 @@ Meet: ${interview.meet_link}
           </div>
 
           {/* AI SKILLS BOX */}
-          <div className="flex h-full flex-col rounded-[2rem] border border-gray-100 bg-white p-8 shadow-lg">
+          <div className="flex flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-lg sm:p-8">
             <h2 className="mb-2 text-xl font-bold text-gray-900">
               AI-Identified Skills
             </h2>
@@ -650,7 +650,7 @@ Meet: ${interview.meet_link}
               {interviews.map((interview) => (
                 <div
                   key={interview.id}
-                  className="flex flex-col gap-4 rounded-xl border border-gray-100 bg-gray-50 p-5 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <p className="text-lg font-bold text-gray-900">
@@ -701,7 +701,7 @@ Meet: ${interview.meet_link}
             </span>
           </h3>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {opportunities.length > 0 ? (
               opportunities.map((post) => {
                 const isApplied = appliedPostIds.includes(post.id);
@@ -761,7 +761,7 @@ Meet: ${interview.meet_link}
                     <button
                       onClick={() => handleApply(post)}
                       disabled={isApplied}
-                      className={` w-full py-3 !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2
+                      className={` w-full py-2.5 sm:py-3 text-sm sm:text-base !rounded-full bg-gradient-to-r from-[#319795] to-teal-600 text-white font-bold text-base shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2
                             ${
                               isApplied
                                 ? "bg-green-100 text-green-700 cursor-default border border-green-200"
