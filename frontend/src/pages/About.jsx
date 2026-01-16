@@ -26,8 +26,15 @@ export default function About() {
       <Navbar />
 
       {/* ================= SECTION 1: HEADER HERO ================= */}
-      <div className="relative px-6 py-20 text-center sm:pt-60">
-        <div className="absolute left-1/4 top-20 -z-10 h-72 w-72 rounded-full bg-[#319795]/10 blur-3xl"></div>
+      <div className="relative px-6 pb-20 pt-32 text-center md:pt-40 lg:pt-48">
+        {/* 1. Changed py-20 to pt-32 pb-20: 
+         'pt-32' (128px) ensures text starts BELOW the navbar on mobile.
+      
+      2. Added md:pt-40 & lg:pt-48: 
+         Gradually increases space for tablets and desktops.
+  */}
+
+        <div className="absolute left-1/4 top-40 -z-10 h-72 w-72 rounded-full bg-[#319795]/10 blur-3xl"></div>
         <div className="absolute right-1/4 top-40 -z-10 h-96 w-96 rounded-full bg-[#4fd1c5]/10 blur-3xl"></div>
 
         <motion.div
@@ -36,20 +43,24 @@ export default function About() {
           variants={fadeInUp}
           className="mx-auto max-w-4xl"
         >
+          {/* 3. Responsive Text Sizes:
+           text-4xl (Mobile) -> sm:text-5xl (Tablet) -> lg:text-6xl (Desktop)
+           This ensures the headline doesn't look too huge on phones.
+    */}
           <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-            We Are Bridging the Gap Between <br />
+            We Are Bridging the Gap Between <br className="hidden sm:block" />
+            {/* Added hidden sm:block to <br /> so it breaks naturally on mobile but forces break on desktop */}
             <span className="bg-gradient-to-r from-[#319795] to-[#4fd1c5] bg-clip-text text-transparent">
               Good Intentions & Real Impact.
             </span>
           </h1>
-          <p className="mx-auto max-w-2xl text-xl leading-relaxed text-gray-600">
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600 sm:text-xl">
             SmartServe AI isn't just a platform; it's a movement to modernize
             volunteering using the power of artificial intelligence and human
             empathy.
           </p>
         </motion.div>
       </div>
-
       {/* ================= SECTION 2: THE STORY ================= */}
       <section className="relative px-6 py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
