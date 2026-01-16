@@ -63,20 +63,25 @@ export default function Landing() {
         <Navbar />
 
         {/* ================= HERO SECTION ================= */}
-        <section className="relative mx-auto max-w-7xl px-6 pb-20 pt-32 lg:pb-32 lg:pt-32">
+        <section className="relative mx-auto max-w-7xl px-6 pb-20 pt-28 lg:pb-32 lg:pt-24">
           {/* Soft Decorative Background Blur */}
           <div className="absolute -left-10 top-20 -z-10 h-72 w-72 rounded-full bg-[#319795]/5 blur-[100px]" />
           <div className="absolute right-0 top-40 -z-10 h-72 w-72 rounded-full bg-[#319795]/5 blur-[100px]" />
 
-          <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-center gap-16 lg:min-h-[70vh] lg:grid-cols-2 lg:gap-12">
+            {/* TEXT CONTENT */}
+            {/* TEXT CONTENT */}
+            {/* TEXT CONTENT */}
             {/* TEXT CONTENT */}
             <motion.div
               initial={{ opacity: 0 }}
               animate="animate"
               variants={heroTextFloat}
-              className="text-center lg:text-left"
+              // 1. Mobile: Center text | Desktop: Left align text
+              // 2. Mobile: mx-auto (center box) | Desktop: mx-0 (snap box to left)
+              className="mx-auto max-w-xl text-center lg:mx-0 lg:max-w-2xl lg:-translate-y-6 lg:text-left"
             >
-              <h1 className="mb-6 text-4xl font-extrabold leading-[1.15] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+              <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl lg:leading-[1.1]">
                 <AnimatedText text="AI-powered matching " />
                 <br />
                 <AnimatedText
@@ -92,7 +97,7 @@ export default function Landing() {
                 />
               </h1>
 
-              <p className="mb-10 max-w-lg text-lg leading-relaxed text-gray-500">
+              <p className="mx-auto mb-10 max-w-lg leading-relaxed text-gray-500 lg:mx-0">
                 SmartServe AI understands real skills and real needs to create
                 meaningful volunteering opportunities —{" "}
                 <span className="font-medium text-gray-900">
@@ -100,8 +105,10 @@ export default function Landing() {
                 </span>
               </p>
 
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
-                {/* Primary Style - Filled Pill */}
+              {/* BUTTON CONTAINER CHANGES */}
+              {/* justify-center: Centers buttons on mobile/tablet */}
+              {/* lg:justify-start: Aligns buttons to the LEFT on desktop */}
+              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-center">
                 <button
                   onClick={() => navigate("/auth?role=volunteer")}
                   className="flex items-center gap-2 !rounded-full !border-0 !bg-[#319795] !px-10 !py-3.5 !text-base !font-semibold !text-white !shadow-lg transition-all duration-300 hover:-translate-y-1 hover:!bg-[#2a8a88] hover:!shadow-xl active:scale-95"
@@ -110,7 +117,6 @@ export default function Landing() {
                   Join as Volunteer
                 </button>
 
-                {/* Secondary Style - Outlined Pill */}
                 <button
                   onClick={() => navigate("/auth?role=ngo")}
                   className="flex items-center gap-2 !rounded-full !border-2 !border-[#319795] !bg-white !px-10 !py-3.5 !text-base !font-semibold !text-[#319795] !shadow-md transition-all duration-300 hover:-translate-y-1 hover:!bg-[#e6fffa] hover:!shadow-lg active:scale-95"
@@ -126,7 +132,7 @@ export default function Landing() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="relative flex justify-center"
+              className="relative flex justify-center lg:translate-y-4"
             >
               <div className="absolute inset-0 -z-10 rounded-full bg-[#319795]/10 blur-3xl" />
               <img
@@ -140,7 +146,7 @@ export default function Landing() {
 
         {/* ================= HOW IT WORKS ================= */}
         <section className="bg-gray-50/50">
-          <div className="mx-auto max-w-7xl px-6 text-center">
+          <div className="max-w-7xl px-6 text-center">
             <motion.div {...fadeInUp}>
               <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
                 How SmartServe AI Works

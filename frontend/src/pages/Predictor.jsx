@@ -51,37 +51,37 @@ export default function Predictor() {
   };
 
   return (
-    <div className="bg-white min-h-screen text-gray-900">
+    <div className="min-h-screen bg-white text-gray-900">
       <Navbar />
       
-      <div className="mx-auto max-w-5xl px-6 pt-32 pb-20">
-        <div className="text-center mb-12">
-          <span className="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-[#319795] uppercase bg-[#e6fffa] rounded-full">
+      <div className="mx-auto max-w-5xl px-6 pb-20 pt-32">
+        <div className="mb-12 text-center">
+          <span className="mb-4 inline-block rounded-full bg-[#e6fffa] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#319795]">
             AI Projection Tool
           </span>
-          <h1 className="text-4xl font-extrabold mb-4">
+          <h1 className="mb-4 text-4xl font-extrabold">
             Calculate Your <span className="text-[#319795]">Potential Impact</span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-lg text-gray-600">
             Volunteering isn't just about time; it's about value. 
             See the tangible economic and social change you could create in one year.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
           
           {/* LEFT: CONTROLS */}
-          <div className="bg-white border border-gray-100 p-8 rounded-3xl shadow-xl">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+          <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl">
+            <h3 className="mb-6 flex items-center gap-2 text-xl font-bold">
               <FaCalculator className="text-gray-400" /> Inputs
             </h3>
             
             <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">My Primary Skill</label>
+              <label className="mb-2 block text-sm font-semibold text-gray-700">My Primary Skill</label>
               <select 
                 value={skill} 
                 onChange={(e) => setSkill(e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#319795] outline-none transition-all cursor-pointer hover:bg-gray-100"
+                className="w-full cursor-pointer rounded-xl border border-gray-200 bg-gray-50 p-4 outline-none transition-all hover:bg-gray-100 focus:ring-2 focus:ring-[#319795]"
               >
                 <option value="coding">Software Development / IT</option>
                 <option value="teaching">Teaching / Education</option>
@@ -102,15 +102,15 @@ export default function Predictor() {
                   placeholder="e.g. Photography, Accounting, Driving..."
                   value={customSkill}
                   onChange={(e) => setCustomSkill(e.target.value)}
-                  className="mt-3 w-full p-4 bg-white border-2 border-[#319795] rounded-xl focus:outline-none text-gray-700 placeholder-gray-400"
+                  className="mt-3 w-full rounded-xl border-2 border-[#319795] bg-white p-4 text-gray-700 placeholder-gray-400 focus:outline-none"
                 />
               )}
             </div>
 
             <div className="mb-8">
-              <div className="flex justify-between mb-2">
+              <div className="mb-2 flex justify-between">
                 <label className="text-sm font-semibold text-gray-700">Hours per Week</label>
-                <span className="text-[#319795] font-bold">{hours} Hrs</span>
+                <span className="font-bold text-[#319795]">{hours} Hrs</span>
               </div>
               <input 
                 type="range" 
@@ -118,15 +118,15 @@ export default function Predictor() {
                 max="40" 
                 value={hours} 
                 onChange={(e) => setHours(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#319795]"
+                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#319795]"
               />
-              <div className="flex justify-between text-xs text-gray-400 mt-2">
+              <div className="mt-2 flex justify-between text-xs text-gray-400">
                 <span>1 Hr</span>
                 <span>40 Hrs</span>
               </div>
             </div>
 
-            <div className="p-4 bg-blue-50 rounded-xl text-sm text-blue-700 leading-relaxed border border-blue-100">
+            <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-relaxed text-blue-700">
               <strong>Did you know?</strong> Skills like <b>{getSkillName()}</b> are in high demand. 
               By donating your time, you save NGOs money they can use for food, shelter, and aid.
             </div>
@@ -140,16 +140,16 @@ export default function Predictor() {
               key={valueCreated} 
               initial={{ scale: 0.95, opacity: 0.5 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-gradient-to-br from-[#319795] to-[#2c7a7b] text-white p-8 rounded-3xl shadow-lg relative overflow-hidden"
+              className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#319795] to-[#2c7a7b] p-8 text-white shadow-lg"
             >
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
-              <div className="flex items-center gap-4 mb-2">
-                <div className="p-3 bg-white/20 rounded-full">
+              <div className="absolute right-0 top-0 -mr-4 -mt-4 h-32 w-32 rounded-full bg-white opacity-10 blur-2xl"></div>
+              <div className="mb-2 flex items-center gap-4">
+                <div className="rounded-full bg-white/20 p-3">
                   <FaRupeeSign className="text-2xl" />
                 </div>
                 <h3 className="font-semibold opacity-90">Economic Value Generated</h3>
               </div>
-              <div className="text-5xl font-extrabold mb-1">
+              <div className="mb-1 text-5xl font-extrabold">
                 ₹{(valueCreated).toLocaleString()}
               </div>
               <p className="text-sm opacity-80">Estimated savings for NGOs per year</p>
@@ -160,15 +160,15 @@ export default function Predictor() {
               key={livesTouched}
               initial={{ scale: 0.95, opacity: 0.5 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white border-2 border-[#319795] text-[#319795] p-8 rounded-3xl shadow-sm"
+              className="rounded-3xl border-2 border-[#319795] bg-white p-8 text-[#319795] shadow-sm"
             >
-              <div className="flex items-center gap-4 mb-2">
-                <div className="p-3 bg-[#e6fffa] rounded-full">
+              <div className="mb-2 flex items-center gap-4">
+                <div className="rounded-full bg-[#e6fffa] p-3">
                   <FaUserFriends className="text-2xl" />
                 </div>
                 <h3 className="font-semibold text-gray-600">Potential Lives Impacted</h3>
               </div>
-              <div className="text-5xl font-extrabold mb-1">
+              <div className="mb-1 text-5xl font-extrabold">
                 {livesTouched > 1000 ? (livesTouched/1000).toFixed(1) + 'k' : livesTouched}+
               </div>
               <p className="text-sm text-gray-500">People benefited via digital or direct services</p>
@@ -181,11 +181,11 @@ export default function Predictor() {
                 background: "linear-gradient(135deg, #319795 0%, #2c7a7b 100%)", 
                 color: "#ffffff" 
               }} 
-              className="group w-full py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-95"
+              className="group flex w-full items-center justify-center gap-3 !rounded-2xl py-4 text-lg font-bold shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-95"
             >
-              <FaHeart className="text-red-100 animate-pulse" /> 
+              <FaHeart className="animate-pulse text-red-100" /> 
               Make This Impact Real
-              <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+              <FaArrowRight className="transition-transform group-hover:translate-x-1" />
             </button>
 
           </div>
