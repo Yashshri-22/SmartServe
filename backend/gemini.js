@@ -2,7 +2,7 @@ const axios = require("axios");
 
 // Ensure you are using the correct model version available to you
 const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
 function cleanGeminiResponse(text) {
   // Removes markdown code blocks if Gemini adds them
