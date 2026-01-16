@@ -583,12 +583,19 @@ export default function NgoDashboard() {
                       >
                         <FaTrash className="text-xs" />
                       </button>
-                      <div className="text-[11px] font-bold text-gray-800">
+                      <div className="space-y-1">
+                      <div className="text-[11px] font-bold text-gray-900">
                         {post.org_name}
                       </div>
-                      <div className="text-[10px] text-gray-500">
+
+                      <div className="text-[10px] text-gray-600 line-clamp-2">
+                        {post.raw_requirement}
+                      </div>
+
+                      <div className="text-[9px] text-gray-400">
                         {new Date(post.created_at).toLocaleDateString()}
                       </div>
+                    </div>
                     </div>
                   ))}
                 </div>
