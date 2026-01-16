@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const supabase = require("../services/supabase");
-const analyzeText = require("../services/gemini");
+const analyzeText = require("../gemini");
 
 router.post("/create", async (req, res) => {
   try {
