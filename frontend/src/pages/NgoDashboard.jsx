@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
-import axios from "axios"; // Imported axios for AI
+import axios from "axios"; 
 import {
   FaRobot,
   FaMapMarkerAlt,
@@ -25,8 +25,8 @@ import {
   FaEdit,
 } from "react-icons/fa";
 
-// --- API HELPER (From your original code) ---
-const API_URL = "http://localhost:5000/api"; // Adjust port if needed
+// --- API HELPER ---
+const API_URL = "http://localhost:5000/api"; 
 
 const fetchAiSkills = async (text) => {
   if (!text) return ["General Volunteering"];
@@ -101,7 +101,6 @@ export default function NgoDashboard() {
     }
   }, [session]);
 
-  // Persist schemes to LocalStorage
   useEffect(() => {
     if (schemes.length > 0) {
       localStorage.setItem(
@@ -112,7 +111,6 @@ export default function NgoDashboard() {
   }, [schemes, session]);
 
   const loadInitialSchemes = async () => {
-    // 1. Try Local Storage first
     const localSchemes = localStorage.getItem(
       `ngo_schemes_${session?.user?.id}`
     );
@@ -124,7 +122,6 @@ export default function NgoDashboard() {
         console.error("Error parsing local schemes", e);
       }
     }
-    // 2. Fallback to DB
     await fetchLatestSchemesFromDB();
   };
 
@@ -182,7 +179,6 @@ export default function NgoDashboard() {
     }
   };
 
-  // --- HANDLERS ---
   const handleContactChange = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
@@ -190,7 +186,6 @@ export default function NgoDashboard() {
     }
   };
 
-  // --- ADD SCHEME WITH PDF ---
   const handleAddScheme = async () => {
     if (!currentScheme.name.trim()) return alert("Scheme Name is required");
     if (!currentScheme.desc.trim())
@@ -228,26 +223,17 @@ export default function NgoDashboard() {
       { ...currentScheme, id: Date.now(), pdf_url: pdfUrl },
     ];
     setSchemes(newSchemes);
-
-    // Reset Form
     setCurrentScheme({ name: "", desc: "" });
     setSchemeFile(null);
     setShowSchemeModal(false);
   };
 
-  // --- REMOVE SCHEME ---
   const handleRemoveScheme = (id) => {
-    if (
-      !window.confirm(
-        "Delete this scheme? It will be removed from your active list."
-      )
-    )
-      return;
+    if (!window.confirm("Delete this scheme? It will be removed from your active list.")) return;
 
     const newSchemes = schemes.filter((s) => s.id !== id);
     setSchemes(newSchemes);
 
-    // Update Local Storage immediately
     if (newSchemes.length === 0) {
       localStorage.removeItem(`ngo_schemes_${session?.user?.id}`);
     } else {
@@ -258,7 +244,6 @@ export default function NgoDashboard() {
     }
   };
 
-  // --- POST REQUIREMENT (Integrated AI) ---
   const handlePost = async () => {
     if (!description || !location || !orgName || !contact || !email) {
       return alert("Please fill all fields (including Email) to post.");
@@ -269,7 +254,6 @@ export default function NgoDashboard() {
     setLoading(true);
     try {
       if (session?.user) {
-        // --- CHANGED: Using fetchAiSkills (API) instead of getDetectedSkills (Hardcoded) ---
         const skills = await fetchAiSkills(description);
         const { duration } = extractMetadata(description);
 
@@ -300,7 +284,7 @@ export default function NgoDashboard() {
     }
   };
 
-  // --- FIND MATCH (Integrated AI) ---
+  // --- UPDATED MATCHING LOGIC ---
   const handleFindMatch = async (e) => {
     e.preventDefault();
     if (!description || !location)
@@ -310,7 +294,6 @@ export default function NgoDashboard() {
     setAiResult(null);
 
     try {
-      // --- CHANGED: Using fetchAiSkills (API) ---
       const detectedSkills = await fetchAiSkills(description);
 
       const { data: volunteers, error } = await supabase
@@ -332,16 +315,25 @@ export default function NgoDashboard() {
           }
           if (!Array.isArray(volSkills)) volSkills = [];
 
+          // --- FIX 1: BI-DIRECTIONAL MATCHING ---
+          // This ensures that if Need="Dancing" and Skill="Dance", it matches.
+          // OR if Need="Singing and Dancing" and Skill="Dancing", it matches.
           const overlap = volSkills.filter((skill) =>
             detectedSkills.some((need) =>
-              skill.toLowerCase().includes(need.toLowerCase())
+              skill.toLowerCase().includes(need.toLowerCase()) || 
+              need.toLowerCase().includes(skill.toLowerCase())
             )
           );
 
           if (overlap.length > 0) {
+            // --- FIX 2: DYNAMIC SCORING ---
+            // Score calculates percentage of needs met + base score
+            const matchRatio = overlap.length / Math.max(detectedSkills.length, 1);
+            const score = Math.min(Math.round(60 + (matchRatio * 40)), 99); 
+
             return {
               ...vol,
-              score: Math.min(60 + overlap.length * 15, 98),
+              score: score, 
               matchedSkills: overlap,
             };
           }
@@ -384,7 +376,6 @@ export default function NgoDashboard() {
     setEmail(post.email || "");
     setDescription(post.raw_requirement);
     setLocation(post.location);
-    // Note: We don't overwrite current persistent schemes here
     setAiResult(null);
     fetchApplicationsForPost(post.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -451,7 +442,6 @@ export default function NgoDashboard() {
     setMeetLink(application.meet_link || "");
   };
 
-  // --- UI FROM FRIEND'S CODE ---
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-gray-50 font-sans text-gray-900">
       <Navbar />
@@ -606,14 +596,12 @@ export default function NgoDashboard() {
                   </div>
                 </div>
 
-                {/* --- SCHEME ATTACHED BADGE WITH EDIT BUTTON --- */}
                 {schemes.length > 0 && (
                   <div className="flex items-center gap-2 rounded-xl border border-teal-100 bg-teal-50 p-3 text-xs text-teal-700">
                     <FaHandHoldingHeart />
                     <span className="font-semibold">
                       {schemes.length} Scheme(s) Attached
                     </span>
-                    {/* --- ADDED EDIT BUTTON HERE --- */}
                     <button
                       type="button"
                       onClick={() => setShowSchemeModal(true)}
@@ -725,7 +713,6 @@ export default function NgoDashboard() {
                         key={app.id}
                         className="relative rounded-xl border bg-gray-50 p-4"
                       >
-                        {/* DELETE ICON – TOP RIGHT */}
                         <button
                           onClick={() => handleCancelInterview(app.id)}
                           className="!hover:bg-red-50 absolute right-3 top-3 !rounded-full !bg-white p-2 text-red-500 hover:text-red-700"
@@ -734,7 +721,6 @@ export default function NgoDashboard() {
                           <FaTrashAlt />
                         </button>
 
-                        {/* CONTENT */}
                         <div className="space-y-2">
                           <p className="font-bold text-gray-800">
                             {app.volunteers?.full_name || "Volunteer"}
@@ -744,7 +730,6 @@ export default function NgoDashboard() {
                           </p>
                         </div>
 
-                        {/* ACTION BUTTONS */}
                         {app.interview_status === "scheduled" ? (
                           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                             <a
