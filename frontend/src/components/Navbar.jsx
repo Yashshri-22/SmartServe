@@ -104,7 +104,7 @@ export default function Navbar() {
         {/* 🔹 NEW: HAMBURGER (MOBILE ONLY) */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="!hover:!bg-white !rounded-lg !bg-gray-100 p-2 text-2xl !text-gray-700 md:hidden"
+          className="!rounded-lg !bg-gray-100 p-2 text-2xl !text-[#319795] hover:bg-gray-200 dark:bg-gray-800 dark:!text-[#319795] dark:hover:bg-gray-700 md:hidden"
         >
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
@@ -112,7 +112,7 @@ export default function Navbar() {
 
       {/* 🔹 NEW: MOBILE MENU */}
       {menuOpen && (
-        <div className="mx-4 mt-4 space-y-4 rounded-2xl border border-gray-200 bg-white px-6 py-6 shadow-xl dark:border-gray-700 dark:bg-gray-900 md:hidden">
+        <div className="mx-4 mt-4 space-y-4 !rounded-2xl border !border-gray-200 !bg-white px-6 py-6 shadow-xl dark:border-gray-700 dark:bg-gray-900 md:hidden">
           <button
             onClick={handleHomeClick}
             className="flex w-full items-center !rounded-xl !bg-gray-50 px-4 py-3 text-left text-sm font-medium !text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
