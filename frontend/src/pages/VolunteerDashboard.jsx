@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+
 import {
   FaRobot,
   FaMapMarkerAlt,
   FaSearch,
   FaClock,
   FaPencilAlt,
+  FaCalendarAlt,
   FaBuilding,
   FaCheckCircle,
   FaUser,
@@ -656,9 +658,16 @@ Meet: ${interview.meet_link}
                     <p className="text-lg font-bold text-gray-900">
                       {interview.ngos?.org_name}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      📅 {interview.interview_date} ⏰{" "}
-                      {interview.interview_time}
+                    <p className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <FaCalendarAlt className="text-teal-500" />
+                        {interview.interview_date}
+                      </span>
+
+                      <span className="flex items-center gap-1">
+                        <FaClock className="text-teal-500" />
+                        {interview.interview_time}
+                      </span>
                     </p>
                   </div>
 

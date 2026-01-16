@@ -386,7 +386,7 @@ export default function NgoDashboard() {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-gray-50 font-sans text-gray-900">
       <Navbar />
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 lg:pt-28">
         <div className="relative mb-8 overflow-hidden rounded-[2rem] border border-gray-100 bg-white px-8 py-10 shadow-sm">
           <div className="relative z-10">
             <h1 className="mb-2 text-4xl font-extrabold text-gray-900">
@@ -398,7 +398,7 @@ export default function NgoDashboard() {
           </div>
         </div>
 
-        <div className="grid items-start gap-8 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="flex flex-col gap-6 lg:sticky lg:top-28 lg:col-span-5">
             <div
               className={`bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-xl border relative overflow-hidden transition-all duration-300 ${
@@ -571,31 +571,39 @@ export default function NgoDashboard() {
                     <div
                       key={post.id}
                       onClick={() => loadFromHistory(post)}
-                      className={`group p-3 rounded-xl border cursor-pointer transition-all relative ${
+                      className={`group p-3 rounded-xl border cursor-pointer transition-all ${
                         selectedPostId === post.id
-                          ? "bg-teal-50 border-teal-300 ring-1 ring-teal-300"
-                          : "bg-gray-50 border-transparent hover:border-teal-200"
+                          ? "bg-teal-50 border-teal-300"
+                          : "bg-gray-50 hover:border-teal-200"
                       }`}
                     >
-                      <button
-                        onClick={(e) => handleDelete(e, post.id)}
-                        className="absolute right-3 top-3 z-20 !rounded-full text-gray-500 hover:text-red-600"
-                      >
-                        <FaTrash className="text-xs" />
-                      </button>
-                      <div className="space-y-1">
-                      <div className="text-[11px] font-bold text-gray-900">
-                        {post.org_name}
+                      {/* HEADER ROW */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="truncate text-[11px] font-bold text-gray-900">
+                            {post.org_name}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => handleDelete(e, post.id)}
+                          className="!hover:text-red-600 shrink-0 !rounded-2xl p-1 !text-gray-400"
+                          title="Delete post"
+                        >
+                          <FaTrashAlt className="text-xs" />
+                        </button>
                       </div>
 
-                      <div className="text-[10px] text-gray-600 line-clamp-2">
-                        {post.raw_requirement}
-                      </div>
+                      {/* BODY */}
+                      <div className="mt-1 space-y-1">
+                        <div className="line-clamp-2 text-[10px] text-gray-600">
+                          {post.raw_requirement}
+                        </div>
 
-                      <div className="text-[9px] text-gray-400">
-                        {new Date(post.created_at).toLocaleDateString()}
+                        <div className="text-[9px] text-gray-400">
+                          {new Date(post.created_at).toLocaleDateString()}
+                        </div>
                       </div>
-                    </div>
                     </div>
                   ))}
                 </div>
@@ -614,9 +622,9 @@ export default function NgoDashboard() {
                     {applications.map((app) => (
                       <div
                         key={app.id}
-                        className="flex items-center justify-between rounded-xl border bg-gray-50 p-3"
+                        className="flex flex-col gap-3 rounded-xl border bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between"
                       >
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-bold text-gray-800">
                             {app.volunteers?.full_name || "Volunteer"}
                           </p>
@@ -626,26 +634,26 @@ export default function NgoDashboard() {
                         </div>
 
                         {app.interview_status === "scheduled" ? (
-                          <div className="flex gap-2">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                             <a
                               href={app.meet_link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="!rounded-full !bg-teal-600 px-4 py-3 text-xs font-bold text-white !no-underline"
+                              className="w-full rounded-full bg-teal-600 px-4 py-2.5 text-center text-xs font-bold text-white no-underline sm:w-auto"
                             >
                               Join Meet
                             </a>
 
                             <button
                               onClick={() => openRescheduleModal(app)}
-                              className="!rounded-full !bg-gray-900 px-4 py-1.5 text-xs font-bold text-white"
+                              className="w-full !rounded-full !bg-gray-900 px-4 py-2.5 text-xs font-bold !text-white sm:w-auto"
                             >
                               Reschedule
                             </button>
 
                             <button
                               onClick={() => handleCancelInterview(app.id)}
-                              className="!hover:text-red-700 !rounded-full px-3 py-2 !text-red-500"
+                              className="mx-auto !rounded-full px-3 py-2 !text-red-500 hover:text-red-700 sm:mx-0"
                               title="Cancel Interview"
                             >
                               <FaTrashAlt />
@@ -654,7 +662,7 @@ export default function NgoDashboard() {
                         ) : (
                           <button
                             onClick={() => setSelectedApplication(app)}
-                            className="rounded-full bg-gray-900 px-4 py-1.5 text-xs font-bold text-white"
+                            className="w-full !rounded-full !bg-gray-900 px-4 py-2.5 text-xs font-bold !text-white sm:w-auto"
                           >
                             Schedule
                           </button>
@@ -702,7 +710,7 @@ export default function NgoDashboard() {
                     {aiResult.matches.length}
                   </span>
                 </h3>
-                <div className="grid gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {aiResult.matches.map((vol) => (
                     <div
                       key={vol.id}
@@ -746,7 +754,7 @@ export default function NgoDashboard() {
 
             {selectedApplication && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                   <h3 className="text-lg font-bold">Schedule Interview</h3>
 
                   <div className="space-y-3">
