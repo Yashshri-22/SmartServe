@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
-import axios from "axios"; 
+import axios from "axios";
 import {
   FaRobot,
   FaMapMarkerAlt,
@@ -26,7 +26,7 @@ import {
 } from "react-icons/fa";
 
 // --- API HELPER ---
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`; 
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 const fetchAiSkills = async (text) => {
   if (!text) return ["General Volunteering"];
@@ -229,7 +229,12 @@ export default function NgoDashboard() {
   };
 
   const handleRemoveScheme = (id) => {
-    if (!window.confirm("Delete this scheme? It will be removed from your active list.")) return;
+    if (
+      !window.confirm(
+        "Delete this scheme? It will be removed from your active list."
+      )
+    )
+      return;
 
     const newSchemes = schemes.filter((s) => s.id !== id);
     setSchemes(newSchemes);
@@ -319,21 +324,23 @@ export default function NgoDashboard() {
           // This ensures that if Need="Dancing" and Skill="Dance", it matches.
           // OR if Need="Singing and Dancing" and Skill="Dancing", it matches.
           const overlap = volSkills.filter((skill) =>
-            detectedSkills.some((need) =>
-              skill.toLowerCase().includes(need.toLowerCase()) || 
-              need.toLowerCase().includes(skill.toLowerCase())
+            detectedSkills.some(
+              (need) =>
+                skill.toLowerCase().includes(need.toLowerCase()) ||
+                need.toLowerCase().includes(skill.toLowerCase())
             )
           );
 
           if (overlap.length > 0) {
             // --- FIX 2: DYNAMIC SCORING ---
             // Score calculates percentage of needs met + base score
-            const matchRatio = overlap.length / Math.max(detectedSkills.length, 1);
-            const score = Math.min(Math.round(60 + (matchRatio * 40)), 99); 
+            const matchRatio =
+              overlap.length / Math.max(detectedSkills.length, 1);
+            const score = Math.min(Math.round(60 + matchRatio * 40), 99);
 
             return {
               ...vol,
-              score: score, 
+              score: score,
               matchedSkills: overlap,
             };
           }
@@ -914,6 +921,18 @@ export default function NgoDashboard() {
                           </div>
                         </div>
                       </div>
+                      {vol.resume_url && (
+                        <div className="mt-4 border-t border-gray-100 pt-3">
+                          <a
+                            href={vol.resume_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-50 py-2.5 text-xs font-bold text-teal-700 transition-colors hover:bg-teal-100"
+                          >
+                            <FaFilePdf className="text-sm" /> View Resume
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
