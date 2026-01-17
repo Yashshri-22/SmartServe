@@ -26,7 +26,7 @@ import {
 } from "react-icons/fa";
 
 // --- API HELPER ---
-const API_URL = "http://localhost:5000/api"; 
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`; 
 
 const fetchAiSkills = async (text) => {
   if (!text) return ["General Volunteering"];

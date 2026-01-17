@@ -146,7 +146,7 @@ export default function Landing() {
 
         {/* ================= HOW IT WORKS ================= */}
         <section className="bg-gray-50/50">
-          <div className="max-w-7xl px-6 text-center">
+          <div className="max-w-7xl px-6 !text-center">
             <motion.div {...fadeInUp}>
               <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
                 How SmartServe AI Works
