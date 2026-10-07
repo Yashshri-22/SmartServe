@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import {
@@ -58,7 +58,7 @@ export default function Predictor() {
   // ---------------- STATE ----------------
   const [hours, setHours] = useState(5);
   const [skill, setSkill] = useState("teaching");
-  const [customSkill, setCustomSkill] = useState("");
+  
 
   // ---------------- IMPACT CALCULATION ----------------
   const calculateImpact = () => {

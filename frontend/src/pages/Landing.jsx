@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {
@@ -10,6 +10,30 @@ import {
   FaLink,
 } from "react-icons/fa";
 
+const AnimatedText = ({ text, className = "" }) => {
+  return (
+    <span className={className}>
+      {text.split("").map((char, i) => (
+        <motion.span
+          key={i}
+          animate={{
+            color: ["#319795", "#4fd1c5", "#319795"],
+          }}
+          transition={{
+            duration: 3,
+            delay: i * 0.07,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="inline-block"
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+    </span>
+  );
+};
+
 export default function Landing() {
   const navigate = useNavigate();
 
@@ -19,30 +43,6 @@ export default function Landing() {
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
     transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-  };
-
-  const AnimatedText = ({ text, className = "" }) => {
-    return (
-      <span className={className}>
-        {text.split("").map((char, i) => (
-          <motion.span
-            key={i}
-            animate={{
-              color: ["#319795", "#4fd1c5", "#319795"],
-            }}
-            transition={{
-              duration: 3,
-              delay: i * 0.07,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="inline-block"
-          >
-            {char === " " ? "\u00A0" : char}
-          </motion.span>
-        ))}
-      </span>
-    );
   };
 
   const heroTextFloat = {
@@ -70,15 +70,10 @@ export default function Landing() {
 
           <div className="grid grid-cols-1 items-center gap-16 lg:min-h-[70vh] lg:grid-cols-2 lg:gap-12">
             {/* TEXT CONTENT */}
-            {/* TEXT CONTENT */}
-            {/* TEXT CONTENT */}
-            {/* TEXT CONTENT */}
             <motion.div
               initial={{ opacity: 0 }}
               animate="animate"
               variants={heroTextFloat}
-              // 1. Mobile: Center text | Desktop: Left align text
-              // 2. Mobile: mx-auto (center box) | Desktop: mx-0 (snap box to left)
               className="mx-auto max-w-xl text-center lg:mx-0 lg:max-w-2xl lg:-translate-y-6 lg:text-left"
             >
               <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl lg:leading-[1.1]">
@@ -87,13 +82,11 @@ export default function Landing() {
                 <AnimatedText
                   text="Volunteers"
                   className="text-[#319795]"
-                  delay={0.3}
                 />
                 <span> and </span>
                 <AnimatedText
                   text="NGOs"
                   className="text-[#319795]"
-                  delay={0.8}
                 />
               </h1>
 
@@ -105,9 +98,7 @@ export default function Landing() {
                 </span>
               </p>
 
-              {/* BUTTON CONTAINER CHANGES */}
-              {/* justify-center: Centers buttons on mobile/tablet */}
-              {/* lg:justify-start: Aligns buttons to the LEFT on desktop */}
+              {/* BUTTON CONTAINER */}
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-center">
                 <button
                   onClick={() => navigate("/auth?role=volunteer")}
@@ -135,6 +126,7 @@ export default function Landing() {
               className="relative flex justify-center lg:translate-y-4"
             >
               <div className="absolute inset-0 -z-10 rounded-full bg-[#319795]/10 blur-3xl" />
+
               <img
                 src="/images/hero.png"
                 alt="Volunteering illustration"
@@ -151,6 +143,7 @@ export default function Landing() {
               <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
                 How SmartServe AI Works
               </h2>
+
               <div className="mx-auto mb-16 h-1 w-16 rounded-full bg-[#319795]" />
             </motion.div>
 
@@ -187,9 +180,11 @@ export default function Landing() {
                   <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#319795]/10 text-3xl text-[#319795] transition-all duration-300 group-hover:rotate-6 group-hover:bg-[#319795] group-hover:text-white">
                     {item.icon}
                   </div>
+
                   <h3 className="mb-3 text-xl font-bold tracking-tight text-gray-900">
                     {item.title}
                   </h3>
+
                   <p className="text-sm leading-relaxed text-gray-500 sm:text-base">
                     {item.text}
                   </p>
@@ -212,8 +207,8 @@ export default function Landing() {
               </h2>
 
               <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-gray-300">
-                Join volunteers and NGOs using AI to create real social impact —
-                faster, smarter, and more meaningful.
+                Join volunteers and NGOs using AI to create real social impact
+                — faster, smarter, and more meaningful.
               </p>
 
               <button

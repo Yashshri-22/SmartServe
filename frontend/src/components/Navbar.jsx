@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaBrain, FaBars, FaTimes } from "react-icons/fa";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { supabase } from "../services/supabaseClient";
 
 export default function Navbar() {

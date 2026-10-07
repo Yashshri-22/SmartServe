@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../services/supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import {
@@ -93,74 +93,79 @@ export default function NgoDashboard() {
   const [interviewTime, setInterviewTime] = useState("");
   const [meetLink, setMeetLink] = useState("");
 
-  // --- INITIALIZATION ---
-  useEffect(() => {
-    if (session?.user) {
-      fetchMyPosts();
-      loadInitialSchemes();
-    }
-  }, [session]);
+// --- INITIALIZATION ---
 
-  useEffect(() => {
-    if (schemes.length > 0) {
+const fetchLatestSchemesFromDB = useCallback(async () => {
+  try {
+    const { data } = await supabase
+      .from("ngos")
+      .select("schemes")
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (data && data.schemes && Array.isArray(data.schemes)) {
+      setSchemes(data.schemes);
+
       localStorage.setItem(
         `ngo_schemes_${session?.user?.id}`,
-        JSON.stringify(schemes)
+        JSON.stringify(data.schemes)
       );
     }
-  }, [schemes, session]);
+  } catch (error) {
+    console.error("Error loading saved schemes:", error);
+  }
+}, [session]);
 
-  const loadInitialSchemes = async () => {
-    const localSchemes = localStorage.getItem(
-      `ngo_schemes_${session?.user?.id}`
+const loadInitialSchemes = useCallback(async () => {
+  const localSchemes = localStorage.getItem(
+    `ngo_schemes_${session?.user?.id}`
+  );
+
+  if (localSchemes) {
+    try {
+      setSchemes(JSON.parse(localSchemes));
+      return;
+    } catch (e) {
+      console.error("Error parsing local schemes", e);
+    }
+  }
+
+  await fetchLatestSchemesFromDB();
+}, [session, fetchLatestSchemesFromDB]);
+
+const fetchMyPosts = useCallback(async () => {
+  try {
+    const { data, error } = await supabase
+      .from("ngos")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    setMyPosts(data || []);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+  }
+}, [session]);
+
+useEffect(() => {
+  if (session?.user) {
+    fetchMyPosts();
+    loadInitialSchemes();
+  }
+}, [session, fetchMyPosts, loadInitialSchemes]);
+
+useEffect(() => {
+  if (schemes.length > 0) {
+    localStorage.setItem(
+      `ngo_schemes_${session?.user?.id}`,
+      JSON.stringify(schemes)
     );
-    if (localSchemes) {
-      try {
-        setSchemes(JSON.parse(localSchemes));
-        return;
-      } catch (e) {
-        console.error("Error parsing local schemes", e);
-      }
-    }
-    await fetchLatestSchemesFromDB();
-  };
-
-  const fetchLatestSchemesFromDB = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("ngos")
-        .select("schemes")
-        .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (data && data.schemes && Array.isArray(data.schemes)) {
-        setSchemes(data.schemes);
-        localStorage.setItem(
-          `ngo_schemes_${session?.user?.id}`,
-          JSON.stringify(data.schemes)
-        );
-      }
-    } catch (error) {
-      console.error("Error loading saved schemes:", error);
-    }
-  };
-
-  const fetchMyPosts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("ngos")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setMyPosts(data || []);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
-  };
+  }
+}, [schemes, session]);
 
   const fetchApplicationsForPost = async (postId) => {
     try {
@@ -314,7 +319,7 @@ export default function NgoDashboard() {
           if (typeof volSkills === "string") {
             try {
               volSkills = JSON.parse(volSkills);
-            } catch (e) {
+            } catch  {
               volSkills = [];
             }
           }

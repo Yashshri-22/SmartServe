@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../services/supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import Navbar from "../components/Navbar";
 import axios from "axios"; // Kept Axios for AI
 
@@ -74,75 +74,51 @@ export default function VolunteerDashboard() {
   const [schemeSearch, setSchemeSearch] = useState(""); 
 
   // --- 1. CHECK PROFILE ON LOAD ---
-  useEffect(() => {
-    if (!session?.user) return;
-    checkProfile();
-    fetchApplications();
-    fetchInterviews();
-
-    const channel = supabase
-      .channel("applications-updates")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "applications",
-          filter: `volunteer_id=eq.${session.user.id}`,
-        },
-        () => {
-          fetchInterviews();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [session]);
-
+  
   // --- 2. CHECK PROFILE (AI Integrated) ---
-  const checkProfile = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("volunteers")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+ const checkProfile = useCallback(async () => {
+  try {
+    const { data } = await supabase
+      .from("volunteers")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
 
-      if (data && data.full_name && data.contact_no) {
-        setProfileComplete(true);
-        setFullName(data.full_name);
-        setContactNo(data.contact_no);
+    if (data && data.full_name && data.contact_no) {
+      setProfileComplete(true);
+      setFullName(data.full_name);
+      setContactNo(data.contact_no);
 
-        if (data.interest) setDescription(data.interest);
-        if (data.location) setLocation(data.location);
-        if (data.availability) setAvailability(data.availability);
-        if (data.email) setEmail(data.email);
-        else setEmail(session.user.email);
+      if (data.interest) setDescription(data.interest);
+      if (data.location) setLocation(data.location);
+      if (data.availability) setAvailability(data.availability);
+      if (data.email) setEmail(data.email);
+      else setEmail(session.user.email);
 
-        // USE STORED AI SKILLS OR FETCH FRESH
-        let skills = [];
-        if (data.ai_skills && Array.isArray(data.ai_skills) && data.ai_skills.length > 0) {
-             skills = data.ai_skills;
-             setDetectedSkills(skills);
-        } else if (data.interest) {
-             // Fallback: Fetch via API if not stored
-             skills = await fetchAiSkills(data.interest);
-             setDetectedSkills(skills);
-        }
+      let skills = [];
 
-        fetchOpportunities(data.location, skills);
-      } else {
-        setProfileComplete(false);
+      if (
+        data.ai_skills &&
+        Array.isArray(data.ai_skills) &&
+        data.ai_skills.length > 0
+      ) {
+        skills = data.ai_skills;
+        setDetectedSkills(skills);
+      } else if (data.interest) {
+        skills = await fetchAiSkills(data.interest);
+        setDetectedSkills(skills);
       }
-    } catch (error) {
-      setProfileComplete(false);
-    } finally {
-      setCheckingProfile(false);
-    }
-  };
 
+      fetchOpportunities(data.location, skills);
+    } else {
+      setProfileComplete(false);
+    }
+  } catch {
+    setProfileComplete(false);
+  } finally {
+    setCheckingProfile(false);
+  }
+}, [session]);
   // --- REAL-TIME AI TAGGING (DEBOUNCED) ---
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -173,37 +149,65 @@ export default function VolunteerDashboard() {
     )}`;
   };
 
-  const fetchInterviews = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("applications")
-        .select(
-          `id, interview_date, interview_time, meet_link, interview_status, ngos (org_name, location)`
-        )
-        .eq("volunteer_id", session.user.id)
-        .eq("interview_status", "scheduled")
-        .order("interview_date", { ascending: true });
+const fetchInterviews = useCallback(async () => {
+  try {
+    const { data, error } = await supabase
+      .from("applications")
+      .select(
+        `id, interview_date, interview_time, meet_link, interview_status, ngos (org_name, location)`
+      )
+      .eq("volunteer_id", session.user.id)
+      .eq("interview_status", "scheduled")
+      .order("interview_date", { ascending: true });
 
-      if (error) throw error;
-      setInterviews(data || []);
-    } catch (error) {
-      console.error("Error fetching interviews:", error);
-    }
-  };
+    if (error) throw error;
 
-  const fetchApplications = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("applications")
-        .select("ngo_post_id")
-        .eq("volunteer_id", session.user.id);
+    setInterviews(data || []);
+  } catch (error) {
+    console.error("Error fetching interviews:", error);
+  }
+},[session]);
 
-      if (error) throw error;
-      setAppliedPostIds(data.map((app) => app.ngo_post_id));
-    } catch (error) {
-      console.error("Error fetching applications:", error);
-    }
-  };
+  const fetchApplications = useCallback(async () => {
+  try {
+    const { data, error } = await supabase
+      .from("applications")
+      .select("ngo_post_id")
+      .eq("volunteer_id", session.user.id);
+
+    if (error) throw error;
+
+    setAppliedPostIds(data.map((app) => app.ngo_post_id));
+  } catch (error) {
+    console.error("Error fetching applications:", error);
+  }
+}, [session]);
+useEffect(() => {
+    if (!session?.user) return;
+    checkProfile();
+    fetchApplications();
+    fetchInterviews();
+
+    const channel = supabase
+      .channel("applications-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "applications",
+          filter: `volunteer_id=eq.${session.user.id}`,
+        },
+        () => {
+          fetchInterviews();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  },[session, checkProfile, fetchApplications, fetchInterviews]);
 
   const handleContactChange = (e) => {
     const value = e.target.value;
@@ -304,7 +308,7 @@ export default function VolunteerDashboard() {
           if (typeof ngoNeeds === "string") {
             try {
               ngoNeeds = JSON.parse(ngoNeeds);
-            } catch (e) {
+            } catch {
               ngoNeeds = [];
             }
           }
