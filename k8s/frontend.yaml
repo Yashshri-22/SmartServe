@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartserve-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smartserve-frontend
+  template:
+    metadata:
+      labels:
+        app: smartserve-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: trushitasathe/smartserve-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: smartserve-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: NodePort
