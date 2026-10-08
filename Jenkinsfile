@@ -15,25 +15,23 @@ pipeline {
 
         stage('Backend Test') {
             steps {
-                sh '''
-                    docker run --rm \
-                      -v "$WORKSPACE/backend:/app" \
-                      -w /app \
-                      node:20-alpine \
-                      sh -c "npm install && npm test -- --runInBand"
-                '''
+                dir('backend') {
+                    sh '''
+                        npm install
+                        npm test -- --runInBand
+                    '''
+                }
             }
         }
 
         stage('Frontend Build') {
             steps {
-                sh '''
-                    docker run --rm \
-                      -v "$WORKSPACE/frontend:/app" \
-                      -w /app \
-                      node:20-alpine \
-                      sh -c "npm install && npm run build"
-                '''
+                dir('frontend') {
+                    sh '''
+                        npm install
+                        npm run build
+                    '''
+                }
             }
         }
 
