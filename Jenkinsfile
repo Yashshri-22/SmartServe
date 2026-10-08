@@ -20,7 +20,7 @@ pipeline {
                       -v "$WORKSPACE/backend:/app" \
                       -w /app \
                       node:20-alpine \
-                      sh -c "npm ci && npm test -- --runInBand"
+                      sh -c "npm install && npm test -- --runInBand"
                 '''
             }
         }
@@ -32,7 +32,7 @@ pipeline {
                       -v "$WORKSPACE/frontend:/app" \
                       -w /app \
                       node:20-alpine \
-                      sh -c "npm ci && npm run build"
+                      sh -c "npm install && npm run build"
                 '''
             }
         }
