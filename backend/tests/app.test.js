@@ -1,3 +1,9 @@
+jest.mock("../services/supabase", () => ({
+  supabase: {
+    from: jest.fn()
+  }
+}));
+
 const request = require("supertest");
 const app = require("../index");
 
